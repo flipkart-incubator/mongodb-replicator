@@ -27,4 +27,6 @@ public class ReplicaSetManager {
         return null; //HACK
     }
 
+    // Figure out master changes & provide hook for the ReplicaSetReplicator to communicate & act for the changes
+
 }
