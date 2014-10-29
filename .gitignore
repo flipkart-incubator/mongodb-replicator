@@ -9,3 +9,4 @@ example/target/
 mongo-replicator-cluster/target/
 mongo-replicator-core/target/
 mongo-replicator-node/target/
+*.iml
