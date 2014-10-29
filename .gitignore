@@ -4,3 +4,8 @@ pom.xml.releaseBackup
 pom.xml.versionsBackup
 pom.xml.next
 release.properties
+mongo-replicator.*
+example/target/
+mongo-replicator-cluster/target/
+mongo-replicator-core/target/
+mongo-replicator-node/target/
