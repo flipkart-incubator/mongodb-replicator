@@ -1,7 +1,5 @@
 package flipkart.mongo.replicator.core.model;
 
-import sun.jvm.hotspot.ci.ciObjectFactory;
-
 import java.util.Optional;
 
 /**
