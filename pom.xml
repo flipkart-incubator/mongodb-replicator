@@ -14,6 +14,7 @@
         <module>example</module>
         <module>mongo-replicator-core</module>
         <module>mongo-replicator-cluster</module>
+        <module>mongo-node-discovery</module>
     </modules>
 
     <dependencies>
