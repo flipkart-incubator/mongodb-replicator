@@ -1,5 +1,6 @@
 package flipkart.mongo.replicator.core.model;
 
+import com.google.common.collect.ImmutableList;
 import com.mongodb.MongoURI;
 
 import java.util.List;
@@ -11,11 +12,10 @@ public class ReplicaSetConfig {
 
     public final String shardName;
 
-    public List<Node> nodes;
+    public ImmutableList<Node> nodes;
 
     public ReplicaSetConfig(String shardName, List<Node> nodes) {
         this.shardName = shardName;
-        this.nodes = nodes;
+        this.nodes = ImmutableList.copyOf(nodes);
     }
-
 }

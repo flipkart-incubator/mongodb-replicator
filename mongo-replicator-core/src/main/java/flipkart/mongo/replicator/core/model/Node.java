@@ -18,6 +18,10 @@ public class Node {
         this.state = state;
     }
 
+    public Node(String host, int port) {
+        this(host, port, NodeState.UNKNOWN);
+    }
+
     public MongoURI getMongoURI() {
         return new MongoURI("mongodb://" + host + ":" + port );
     }
