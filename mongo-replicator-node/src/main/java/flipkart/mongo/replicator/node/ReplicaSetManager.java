@@ -18,8 +18,8 @@ public class ReplicaSetManager {
 
     public MongoURI getMaster() {
 
-        for ( Node node : rsConfig.nodes) {
-            if ( node.state.equals(NodeState.PRIMARY) ) {
+        for ( Node node : rsConfig.getNodes()) {
+            if ( node.getState().equals(NodeState.PRIMARY) ) {
                 return node.getMongoURI();
             }
         }

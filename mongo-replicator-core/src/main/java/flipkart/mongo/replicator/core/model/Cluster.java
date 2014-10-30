@@ -13,11 +13,9 @@ public class Cluster {
 
     public final ImmutableList<Node> cfgsvrs;
 
-    public final MongoV version;
-
-    public Cluster(List<ReplicaSetConfig> replicaSets, List<Node> cfgsvrs, MongoV version) {
+    public Cluster(List<ReplicaSetConfig> replicaSets, List<Node> cfgsvrs) {
         this.replicaSets = ImmutableList.copyOf(replicaSets);
         this.cfgsvrs = ImmutableList.copyOf(cfgsvrs);
-        this.version = version;
+
     }
 }

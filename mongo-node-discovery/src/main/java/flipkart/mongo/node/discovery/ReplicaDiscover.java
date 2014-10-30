@@ -50,7 +50,7 @@ public class ReplicaDiscover {
             String hostPortInfo = data.length > 1 ? data[1] : data[0];
             String[] details = hostPortInfo.split(":");
 
-            String host = details[0];
+            String host = details[0] + ".nm.flipkart.com";
             int port = Integer.parseInt(details[1]);
 
             replicaNodes.add(new Node(host, port));

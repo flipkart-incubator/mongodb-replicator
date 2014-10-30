@@ -15,6 +15,7 @@
         <module>mongo-replicator-core</module>
         <module>mongo-replicator-cluster</module>
         <module>mongo-node-discovery</module>
+        <module>mongo-replicator-bootstrap</module>
     </modules>
 
     <dependencies>

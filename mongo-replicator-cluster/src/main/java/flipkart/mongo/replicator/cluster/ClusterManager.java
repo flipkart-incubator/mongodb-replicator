@@ -2,6 +2,7 @@ package flipkart.mongo.replicator.cluster;
 
 import com.google.common.collect.ImmutableList;
 import flipkart.mongo.replicator.core.model.Cluster;
+import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 import flipkart.mongo.replicator.node.ReplicaSetManager;
 
 import java.util.List;
@@ -25,7 +26,9 @@ public class ClusterManager {
 
     public ImmutableList<ReplicaSetManager> getReplicaSetManagers() {
         ImmutableList.Builder<ReplicaSetManager> builder = new ImmutableList.Builder<ReplicaSetManager>();
-
+        for ( ReplicaSetConfig rsConfig : cluster.replicaSets ) {
+            builder.add(new ReplicaSetManager(rsConfig));
+        }
 
         return builder.build();
     }
