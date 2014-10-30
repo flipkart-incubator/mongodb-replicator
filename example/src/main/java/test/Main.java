@@ -1,14 +1,9 @@
 package test;
 
-import com.mongodb.DBObject;
-import flipkart.mongo.replicator.core.model.Node;
-import flipkart.mongo.replicator.core.model.NodeState;
-import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
-import flipkart.mongo.replicator.core.model.ReplicationEvent;
+import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
+import flipkart.mongo.replicator.core.model.*;
 import flipkart.mongo.replicator.node.ReplicaSetManager;
 import flipkart.mongo.replicator.node.ReplicaSetReplicator;
-import flipkart.mongo.replicator.core.interfaces.IReplicationEventAdaptor;
-import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +24,7 @@ public class Main {
 
         ReplicaSetManager replicaSetManager = new ReplicaSetManager(shard1);
 
-        ReplicaSetReplicator replicator = new ReplicaSetReplicator(replicaSetManager, new Test(), new ReplicationAdaptor());
+        ReplicaSetReplicator replicator = new ReplicaSetReplicator(replicaSetManager, new Test(), new MongoV(2, 6));
 
         replicator.abc();
 
@@ -43,13 +38,4 @@ public class Main {
         }
     }
 
-    public static class ReplicationAdaptor implements IReplicationEventAdaptor {
-
-        @Override
-        public ReplicationEvent convert(DBObject dbObject) {
-            ReplicationEvent event = new ReplicationEvent();
-            event.operation = dbObject.get("op").toString();
-            return event;
-        }
-    }
 }

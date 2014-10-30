@@ -23,4 +23,17 @@ public class MongoV {
     public MongoV(int major, int minor) {
         this(major, minor, Optional.<Integer>empty());
     }
+
+
+    public boolean isGte(MongoV v) {
+        return (major >= v.major) ||
+                (major == v.major && minor >= v.minor) ||
+                (major == v.major && minor == v.minor && ( (patch.isPresent() && v.patch.isPresent()) && patch.get() >= v.patch.get() ));
+    }
+
+    public boolean isLte(MongoV v) {
+        return (major <= v.major) ||
+                (major == v.major && minor <= v.minor) ||
+                (major == v.major && minor == v.minor && ( (patch.isPresent() && v.patch.isPresent()) && patch.get() <= v.patch.get() ));
+    }
 }

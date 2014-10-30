@@ -1,9 +1,11 @@
 package flipkart.mongo.replicator.node;
 
 import com.mongodb.*;
-import flipkart.mongo.replicator.core.interfaces.IReplicationEventAdaptor;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
+import flipkart.mongo.replicator.core.interfaces.VersionHandler;
+import flipkart.mongo.replicator.core.model.MongoV;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
+import flipkart.mongo.replicator.core.versions.VersionManager;
 
 /**
  * Created by pradeep on 09/10/14.
@@ -11,14 +13,14 @@ import flipkart.mongo.replicator.core.model.ReplicationEvent;
 public class ReplicaSetReplicator {
 
     private final IReplicationHandler replicationHandler;
+    private final VersionHandler versionHandler;
     private ReplicaSetManager replicaSetManager;
 
-    private IReplicationEventAdaptor replicationEventAdaptor;
 
-    public ReplicaSetReplicator(ReplicaSetManager replicaSetManager, IReplicationHandler replicationHandler, IReplicationEventAdaptor replicationEventAdaptor) {
+    public ReplicaSetReplicator(ReplicaSetManager replicaSetManager, IReplicationHandler replicationHandler, MongoV version) {
         this.replicaSetManager = replicaSetManager;
         this.replicationHandler = replicationHandler;
-        this.replicationEventAdaptor = replicationEventAdaptor;
+        this.versionHandler = VersionManager.singleton().getVersionHandler(version);
     }
 
     public void abc() throws Exception {
@@ -33,7 +35,7 @@ public class ReplicaSetReplicator {
 
         while ( cursor.hasNext() ) {
             DBObject obj = cursor.next();
-            ReplicationEvent event = replicationEventAdaptor.convert(obj);
+            ReplicationEvent event = versionHandler.getReplicationEventAdaptor().convert(obj);
             replicationHandler.replicate(event);
         }
     }
