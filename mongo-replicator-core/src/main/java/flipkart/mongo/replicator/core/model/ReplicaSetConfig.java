@@ -8,7 +8,6 @@ import java.util.List;
 public class ReplicaSetConfig {
 
     public final String shardName;
-
     private List<Node> nodes;
 
     public ReplicaSetConfig(String shardName, List<Node> nodes) {
