@@ -1,12 +1,13 @@
 package flipkart.mongo.node.discovery.dataextractor;
 
 import com.google.common.collect.Lists;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.*;
 import flipkart.mongo.replicator.core.model.Node;
+import flipkart.mongo.replicator.core.model.NodeState;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,6 +30,7 @@ public class MongoCollection implements IMongoCollection {
             List<Node> replicaNodes = this.getReplicaNodes(hostString);
             if (!replicaNodes.isEmpty()) {
                 ReplicaSetConfig replicaConfig = new ReplicaSetConfig(shardName, replicaNodes);
+                updateReplicaSet(replicaConfig);
                 replicaSetConfigs.add(replicaConfig);
             }
         }
@@ -54,5 +56,48 @@ public class MongoCollection implements IMongoCollection {
         }
 
         return replicaNodes;
+    }
+
+    private void updateReplicaSet(ReplicaSetConfig replicaSetConfig) {
+
+        List<Node> replicaNodes = replicaSetConfig.getNodes();
+
+        if (replicaNodes.isEmpty())
+            return;
+
+        Node replicaNode = replicaNodes.get(0);
+
+        MongoClientOptions.Builder clientParametersBuilder = new MongoClientOptions.Builder();
+        clientParametersBuilder.autoConnectRetry(true);
+        clientParametersBuilder.socketKeepAlive(true);
+
+        try {
+            ServerAddress serverAddress = new ServerAddress(replicaNode.host, replicaNode.port);
+            MongoClient dbClient = new MongoClient(serverAddress, clientParametersBuilder.build());
+            DB database = dbClient.getDB("admin");
+            CommandResult replSetGetStatus = database.command("replSetGetStatus");
+            List<DBObject> dbDataList = (ArrayList) replSetGetStatus.get("members");
+            for (DBObject dbObject : dbDataList) {
+                updateReplicaNodeStatus(dbObject, replicaSetConfig);
+            }
+
+            System.out.println("STATS: " + replSetGetStatus);
+        } catch (UnknownHostException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private void updateReplicaNodeStatus(DBObject dbObject, ReplicaSetConfig replicaSetConfig) {
+
+        String mongoUri = (String) dbObject.get("name");
+        String[] hostData = mongoUri.split(":");
+        String host = hostData[0];
+        int port = Integer.parseInt(hostData[1]);
+        Node replicaNode = replicaSetConfig.nodeWithConfigs(host, port);
+
+        String nodeState = (String) dbObject.get("stateStr");
+        if (NodeState.DB_STATE_MAP.containsKey(nodeState)) {
+            replicaNode.setState(NodeState.DB_STATE_MAP.get(nodeState));
+        }
     }
 }

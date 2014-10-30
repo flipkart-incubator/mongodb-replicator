@@ -10,7 +10,7 @@ public class Node {
     public final String host;
     public final int port;
 
-    public final NodeState state;
+    private NodeState state;
 
     public Node(String host, int port, NodeState state) {
         this.host = host;
@@ -24,5 +24,13 @@ public class Node {
 
     public MongoURI getMongoURI() {
         return new MongoURI("mongodb://" + host + ":" + port );
+    }
+
+    public NodeState getState() {
+        return state;
+    }
+
+    public void setState(NodeState state) {
+        this.state = state;
     }
 }
