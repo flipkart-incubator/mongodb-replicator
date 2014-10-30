@@ -20,11 +20,11 @@ import java.util.List;
 public class ClusterReplicatorBootstrap {
 
     private final IReplicationHandler replicationHandler;
-    private final Node configSvrNode;
+    private final List<Node> configSvrNodes;
     private MongoV version;
 
-    public ClusterReplicatorBootstrap(Node confgSvrNode, IReplicationHandler replicationHandler) {
-        this.configSvrNode = confgSvrNode;
+    public ClusterReplicatorBootstrap(List<Node> confgSvrNodes, IReplicationHandler replicationHandler) {
+        this.configSvrNodes = confgSvrNodes;
         this.replicationHandler = replicationHandler;
         this.version = new MongoV(2, 6);
     }
@@ -32,15 +32,15 @@ public class ClusterReplicatorBootstrap {
     public void initialize() throws Exception {
 
         ReplicaDiscover replicaDiscover = new ReplicaDiscover();
-        List<ReplicaSetConfig> replicaSetConfigs = replicaDiscover.discover(configSvrNode);
+        List<ReplicaSetConfig> replicaSetConfigs = replicaDiscover.discover(configSvrNodes.get(0));
 
         for (ReplicaSetConfig replicaSetConfig : replicaSetConfigs) {
             NodeDiscover nodeDiscover = new NodeDiscover();
             nodeDiscover.discover(replicaSetConfig);
         }
 
-        Cluster cluster = new Cluster(replicaSetConfigs, Arrays.asList(configSvrNode) );
+        Cluster cluster = new Cluster(replicaSetConfigs, Arrays.asList(configSvrNodes.get(0)) );
         ClusterManager clusterManager = new ClusterManager(cluster);
-        new ClusterReplicator(clusterManager, replicationHandler, version).run();
+        new ClusterReplicator(clusterManager, replicationHandler, version).startAsync();
     }
 }

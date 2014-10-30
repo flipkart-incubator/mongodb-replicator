@@ -10,6 +10,14 @@ import flipkart.mongo.replicator.core.model.ReplicationEvent;
  */
 public class Main {
 
+    /*
+    - Error Handling
+    - Config updates & callback
+    - EventAdaptor final changes
+    - Check-pointing Interface
+    - "Operations & db.coll" filters to be applied on oplog
+     */
+
     public static void main(String args[]) throws Exception {
 
         ClusterReplicatorBootstrap bootstrap = new ClusterReplicatorBootstrap(new Node("w3-cart-svc10.nm.flipkart.com", 27200), new Test());

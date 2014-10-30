@@ -1,7 +1,9 @@
 package flipkart.mongo.replicator.cluster;
 
 import com.google.common.collect.ImmutableList;
-import flipkart.mongo.replicator.core.interfaces.IReplicationEventAdaptor;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.Service;
+import com.google.common.util.concurrent.ServiceManager;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 import flipkart.mongo.replicator.core.interfaces.VersionHandler;
 import flipkart.mongo.replicator.core.model.MongoV;
@@ -9,15 +11,19 @@ import flipkart.mongo.replicator.core.versions.VersionManager;
 import flipkart.mongo.replicator.node.ReplicaSetManager;
 import flipkart.mongo.replicator.node.ReplicaSetReplicator;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * Created by pradeep on 29/10/14.
  */
-public class ClusterReplicator {
+public class ClusterReplicator extends AbstractService {
 
     public final ClusterManager clusterManager;
     public final IReplicationHandler replicationHandler;
     public final VersionHandler versionHandler;
     private final MongoV version;
+    private ServiceManager clusterReplicatorService;
 
     public ClusterReplicator(ClusterManager clusterManager, IReplicationHandler replicationHandler, MongoV version) {
         this.clusterManager = clusterManager;
@@ -26,8 +32,37 @@ public class ClusterReplicator {
         versionHandler  = VersionManager.singleton().getVersionHandler(version);
     }
 
-    public void run() throws Exception {
+    @Override
+    protected void doStart() {
         ImmutableList<ReplicaSetManager> replSetManagers = clusterManager.getReplicaSetManagers();
-        new ReplicaSetReplicator(replSetManagers.get(0), replicationHandler, version).abc();
+        Set<Service> services = new LinkedHashSet<>();
+        for ( ReplicaSetManager replSetManager : replSetManagers) {
+            services.add(new ReplicaSetReplicator(replSetManager, replicationHandler, version));
+        }
+
+        clusterReplicatorService = new ServiceManager(services);
+        clusterReplicatorService.addListener(new ServiceManager.Listener() {
+            @Override
+            public void healthy() {
+
+            }
+
+            @Override
+            public void stopped() {
+
+            }
+
+            @Override
+            public void failure(Service service) {
+                service.startAsync();
+            }
+        });
+
+        clusterReplicatorService.startAsync();
+    }
+
+    @Override
+    protected void doStop() {
+        clusterReplicatorService.stopAsync();
     }
 }

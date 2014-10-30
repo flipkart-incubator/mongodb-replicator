@@ -26,8 +26,6 @@ public class VersionManager {
         }
 
         versionHandlers = builder.build();
-
-        System.out.println("version Handler count : " + versionHandlers.size());
     }
 
     private static Integer mutex = new Integer(0);
