@@ -5,6 +5,8 @@ import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
 
+import java.util.Arrays;
+
 /**
  * Created by pradeep on 09/10/14.
  */
@@ -19,8 +21,7 @@ public class Main {
      */
 
     public static void main(String args[]) throws Exception {
-
-        ClusterReplicatorBootstrap bootstrap = new ClusterReplicatorBootstrap(new Node("w3-cart-svc10.nm.flipkart.com", 27200), new Test());
+        ClusterReplicatorBootstrap bootstrap = new ClusterReplicatorBootstrap(Arrays.asList(new Node("w3-cart-svc10.nm.flipkart.com", 27200)), new Test());
         bootstrap.initialize();
     }
 
