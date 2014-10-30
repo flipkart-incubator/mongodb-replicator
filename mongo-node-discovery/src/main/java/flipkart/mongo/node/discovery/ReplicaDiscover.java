@@ -1,24 +1,27 @@
-package flipkart.mongo.node.discovery.dataextractor;
+package flipkart.mongo.node.discovery;
 
 import com.google.common.collect.Lists;
-import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import flipkart.mongo.node.discovery.connector.MongoConnectionDetails;
+import flipkart.mongo.node.discovery.connector.MongoConnector;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 
 import java.util.List;
 
 /**
- * Created by kishan.gajjar on 13/10/14.
+ * Created by kishan.gajjar on 30/10/14.
  */
-public class MongoCollection implements IMongoCollection {
+public class ReplicaDiscover {
 
-    @Override
-    public List<ReplicaSetConfig> getReplicaSetConfigs(DBCollection dbCollection) {
+    public List<ReplicaSetConfig> discover(String configSvrHost, int configSvrPort) {
 
         List<ReplicaSetConfig> replicaSetConfigs = Lists.newArrayList();
-        DBCursor dbCursor = dbCollection.find();
+
+        MongoConnectionDetails.ConnectionBuilder connectionBuilder = new MongoConnectionDetails.ConnectionBuilder(configSvrHost, configSvrPort);
+        MongoConnector connector = new MongoConnector(connectionBuilder.build());
+        DBCursor dbCursor = connector.getDbCollection().find();
 
         while (dbCursor.hasNext()) {
 

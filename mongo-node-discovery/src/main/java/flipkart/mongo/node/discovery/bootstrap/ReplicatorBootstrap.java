@@ -1,9 +1,14 @@
 package flipkart.mongo.node.discovery.bootstrap;
 
-import flipkart.mongo.node.discovery.connector.MongoConnectionDetails;
-import flipkart.mongo.node.discovery.connector.MongoConnector;
+import flipkart.mongo.node.discovery.NodeDiscover;
+import flipkart.mongo.node.discovery.ReplicaDiscover;
+import flipkart.mongo.replicator.cluster.ClusterManager;
+import flipkart.mongo.replicator.core.model.Cluster;
+import flipkart.mongo.replicator.core.model.MongoV;
+import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,10 +26,18 @@ public class ReplicatorBootstrap {
 
     public void initialize() {
 
-        MongoConnectionDetails mongoConnectionDetails = new MongoConnectionDetails(configSvrHost, configSvrPort);
-        MongoConnector connector = new MongoConnector(mongoConnectionDetails);
+        Node confgSvrNode = new Node(configSvrHost, configSvrPort);
+        MongoV version = new MongoV(0, 0);
 
-//        TODO: pass replica configs to clusterManager
-        List<ReplicaSetConfig> replicaSetConfigs = connector.getReplicaSetConfigs();
+        ReplicaDiscover replicaDiscover = new ReplicaDiscover();
+        List<ReplicaSetConfig> replicaSetConfigs = replicaDiscover.discover(configSvrHost, configSvrPort);
+
+        for (ReplicaSetConfig replicaSetConfig : replicaSetConfigs) {
+            NodeDiscover nodeDiscover = new NodeDiscover();
+            nodeDiscover.discover(replicaSetConfig);
+        }
+
+        Cluster cluster = new Cluster(replicaSetConfigs, Arrays.asList(confgSvrNode), version);
+        ClusterManager clusterManager = new ClusterManager(cluster);
     }
 }

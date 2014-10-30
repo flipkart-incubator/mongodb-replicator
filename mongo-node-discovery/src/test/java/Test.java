@@ -53,7 +53,7 @@ public class Test {
 
         try {
 //            MongoClient dbClient = new MongoClient(new ServerAddress("localhost", Integer.valueOf("27018")), clientParametersBuilder.build());
-            MongoClient dbClient = new MongoClient(new ServerAddress("w3-cart-svc9.nm.flipkart.com", Integer.valueOf("27101")), clientParametersBuilder.build());
+            MongoClient dbClient = new MongoClient(new ServerAddress("w3-cart-svc10.nm.flipkart.com", Integer.valueOf("27101")), clientParametersBuilder.build());
             DB database = dbClient.getDB("config");
             return database.getCollection("shards");
 

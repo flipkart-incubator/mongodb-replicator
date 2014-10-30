@@ -1,8 +1,5 @@
 package flipkart.mongo.replicator.core.model;
 
-import com.google.common.collect.ImmutableList;
-import com.mongodb.MongoURI;
-
 import java.util.List;
 
 /**
@@ -11,11 +8,23 @@ import java.util.List;
 public class ReplicaSetConfig {
 
     public final String shardName;
-
-    public ImmutableList<Node> nodes;
+    private List<Node> nodes;
 
     public ReplicaSetConfig(String shardName, List<Node> nodes) {
         this.shardName = shardName;
-        this.nodes = ImmutableList.copyOf(nodes);
+        this.nodes = nodes;
+    }
+
+    public List<Node> getNodes() {
+        return nodes;
+    }
+
+    public Node nodeWithConfigs(String host, int port) {
+        for (Node node : nodes) {
+            if (node.host.equals(host) && node.port == port) {
+                return node;
+            }
+        }
+        return null;
     }
 }
