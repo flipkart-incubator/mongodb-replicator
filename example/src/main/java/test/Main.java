@@ -1,7 +1,8 @@
 package test;
 
-import flipkart.mongo.replicator.bootstrap.ReplicatorBootstrap;
+import flipkart.mongo.replicator.bootstrap.ClusterReplicatorBootstrap;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
+import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
 
 /**
@@ -11,7 +12,7 @@ public class Main {
 
     public static void main(String args[]) throws Exception {
 
-        ReplicatorBootstrap bootstrap = new ReplicatorBootstrap("w3-cart-svc10.nm.flipkart.com", 27200, new Test());
+        ClusterReplicatorBootstrap bootstrap = new ClusterReplicatorBootstrap(new Node("w3-cart-svc10.nm.flipkart.com", 27200), new Test());
         bootstrap.initialize();
     }
 

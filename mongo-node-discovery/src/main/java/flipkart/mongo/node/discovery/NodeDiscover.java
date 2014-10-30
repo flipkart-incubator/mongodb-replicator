@@ -3,12 +3,12 @@ package flipkart.mongo.node.discovery;
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
-import flipkart.mongo.node.discovery.connector.MongoConnectionDetails;
-import flipkart.mongo.node.discovery.connector.MongoConnector;
+import com.mongodb.Mongo;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.NodeState;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,12 +32,14 @@ public class NodeDiscover {
 
         Node replicaNode = replicaNodes.get(0);
 
-        MongoConnectionDetails.ConnectionBuilder builder = new MongoConnectionDetails.ConnectionBuilder(replicaNode.host, replicaNode.port);
-        builder.setDatabase(DB_FOR_DISCOVERY);
-        builder.setTable(null);
-
-        MongoConnector connector = new MongoConnector(builder.build());
-        DB dbConnection = connector.getDbConnection();
+        Mongo client = null;
+        try {
+            client = replicaNode.getMongoURI().connect();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            throw new RuntimeException(); // HACK
+        }
+        DB dbConnection = client.getDB(DB_FOR_DISCOVERY);
 
         CommandResult replSetGetStatus = dbConnection.command("replSetGetStatus");
         List<DBObject> dbDataList = (ArrayList<DBObject>) replSetGetStatus.get("members");
@@ -50,7 +52,7 @@ public class NodeDiscover {
 
         String mongoUri = (String) dbObject.get("name");
         String[] hostData = mongoUri.split(":");
-        String host = hostData[0] + ".nm.flipkart.com";
+        String host = hostData[0] + ".nm.flipkart.com"; //HACK
         int port = Integer.parseInt(hostData[1]);
         Node replicaNode = replicaSetConfig.nodeWithConfigs(host, port);
 

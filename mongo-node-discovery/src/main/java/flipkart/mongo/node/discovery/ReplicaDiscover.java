@@ -3,11 +3,11 @@ package flipkart.mongo.node.discovery;
 import com.google.common.collect.Lists;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import flipkart.mongo.node.discovery.connector.MongoConnectionDetails;
-import flipkart.mongo.node.discovery.connector.MongoConnector;
+import com.mongodb.Mongo;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 
+import java.net.UnknownHostException;
 import java.util.List;
 
 /**
@@ -15,16 +15,20 @@ import java.util.List;
  */
 public class ReplicaDiscover {
 
-    public List<ReplicaSetConfig> discover(String configSvrHost, int configSvrPort) {
+    public List<ReplicaSetConfig> discover(Node configSvrNode) {
 
         List<ReplicaSetConfig> replicaSetConfigs = Lists.newArrayList();
 
-        MongoConnectionDetails.ConnectionBuilder connectionBuilder = new MongoConnectionDetails.ConnectionBuilder(configSvrHost, configSvrPort);
-        MongoConnector connector = new MongoConnector(connectionBuilder.build());
-        DBCursor dbCursor = connector.getDbCollection().find();
+        Mongo client = null;
+        try {
+            client = configSvrNode.getMongoURI().connect();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            new RuntimeException(); //HACK
+        }
+        DBCursor dbCursor = client.getDB("config").getCollection("shards").find();
 
         while (dbCursor.hasNext()) {
-
             DBObject dbObject = dbCursor.next();
             String shardName = (String) dbObject.get("_id");
             String hostString = (String) dbObject.get("host");
