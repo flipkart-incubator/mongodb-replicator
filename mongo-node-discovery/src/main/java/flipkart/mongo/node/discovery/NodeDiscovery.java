@@ -4,11 +4,11 @@ import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import flipkart.mongo.node.discovery.exceptions.ConnectionException;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.NodeState;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +32,9 @@ public class NodeDiscovery {
         Mongo client = null;
         for (Node replicaNode : replicaSetConfig.getNodes()) {
             try {
-                client = replicaNode.getMongoURI().connect();
+                client = MongoConnector.getMongoClient(replicaNode.getMongoURI());
                 break;
-            } catch (UnknownHostException e) {
+            } catch (ConnectionException e) {
                 System.out.println("Not able to connect to replicaNode: " + replicaNode.getMongoURI());
                 e.printStackTrace();
             }

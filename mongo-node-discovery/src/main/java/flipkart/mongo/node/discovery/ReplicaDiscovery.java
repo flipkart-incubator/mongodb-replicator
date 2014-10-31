@@ -4,10 +4,10 @@ import com.google.common.collect.Lists;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import flipkart.mongo.node.discovery.exceptions.ConnectionException;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 
-import java.net.UnknownHostException;
 import java.util.List;
 
 /**
@@ -40,9 +40,9 @@ public class ReplicaDiscovery {
         Mongo client = null;
         for (Node configSvrNode : configSvrNodes) {
             try {
-                client = configSvrNode.getMongoURI().connect();
+                client = MongoConnector.getMongoClient(configSvrNode.getMongoURI());
                 break;
-            } catch (UnknownHostException e) {
+            } catch (ConnectionException e) {
                 System.out.println("Not able to connect configSvr: " + configSvrNode.getMongoURI());
                 e.printStackTrace();
             }

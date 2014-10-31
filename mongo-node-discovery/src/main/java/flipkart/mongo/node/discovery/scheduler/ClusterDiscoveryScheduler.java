@@ -24,8 +24,7 @@ public class ClusterDiscoveryScheduler implements Runnable {
     public void run() {
         System.out.println("IN SCHEDULER");
 
-        Node configSvrNode = configSvrNodes.get(0);
-        ReplicaDiscovery replicaDiscovery = new ReplicaDiscovery(configSvrNode);
+        ReplicaDiscovery replicaDiscovery = new ReplicaDiscovery(configSvrNodes);
         List<ReplicaSetConfig> replicaSetConfigs = replicaDiscovery.discover();
 
         /**
