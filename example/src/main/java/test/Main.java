@@ -1,5 +1,6 @@
 package test;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import flipkart.mongo.replicator.bootstrap.ClusterReplicatorBuilder;
 import flipkart.mongo.replicator.cluster.ClusterReplicator;
@@ -10,11 +11,7 @@ import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
 import org.bson.types.BSONTimestamp;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 /**
  * Created by pradeep on 09/10/14.
@@ -29,9 +26,9 @@ public class Main {
 
     public static void main(String args[]) throws Exception {
         ClusterReplicator replicator = new ClusterReplicatorBuilder()
-                .addConfigSvrNode(new Node("cart-mongo2.nm.flipkart.com", 27200))
+//                .addConfigSvrNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
                 .addConfigSvrNode(new Node("cart-mongo4.nm.flipkart.com", 27200))
-                .addConfigSvrNode(new Node("cart-mongo6.nm.flipkart.com", 27200))
+//                .addConfigSvrNode(new Node("cart-mongo6.nm.flipkart.com", 27200))
                 .withReplicationHandler(new Test())
                 .withCheckPoint(new InMemCheckPointHandler())
                 .withOplogFilter(new OplogFilter())
@@ -42,11 +39,11 @@ public class Main {
     }
 
     public static class InMemCheckPointHandler implements ICheckPointHandler {
-        ConcurrentHashMap<String, BSONTimestamp> checkpoint = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, BSONTimestamp> checkpoint = new ConcurrentHashMap<String, BSONTimestamp>();
 
         @Override
         public void checkPoint(String replicaSetId, BSONTimestamp timestamp) {
-            System.out.println("replSet::" + replicaSetId + ", timestamp::(" + timestamp.getTime() + "," + timestamp.getInc() + ")");
+//            System.out.println("replSet::" + replicaSetId + ", timestamp::(" + timestamp.getTime() + "," + timestamp.getInc() + ")");
             checkpoint.put(replicaSetId, timestamp);
         }
 

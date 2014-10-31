@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class ClusterManager implements IDiscoveryCallback {
 
-    public final Cluster cluster;
+    public Cluster cluster;
     private final ICheckPointHandler checkPointHandler;
 
     // Find out:
@@ -43,6 +43,7 @@ public class ClusterManager implements IDiscoveryCallback {
 
         System.out.println("GOT Updated rsConfigs");
         if (DiscoveryUtils.hasReplicaSetsChanged(cluster.replicaSets, replicaSetConfigs)) {
+            cluster = new Cluster(replicaSetConfigs, cluster.cfgsvrs);
 //            TODO: ReplicaSets has been changed.. update the replicator
             System.out.println("RSConfigs has been updated");
         }

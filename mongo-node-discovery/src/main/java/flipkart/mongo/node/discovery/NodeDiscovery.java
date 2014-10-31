@@ -1,5 +1,6 @@
 package flipkart.mongo.node.discovery;
 
+import com.google.common.base.Optional;
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
@@ -57,11 +58,13 @@ public class NodeDiscovery {
         String[] hostData = mongoUri.split(":");
         String host = hostData[0] + ".nm.flipkart.com"; //HACK
         int port = Integer.parseInt(hostData[1]);
-        Node replicaNode = replicaSetConfig.nodeWithConfigs(host, port);
+        Optional<Node> replicaNode = replicaSetConfig.findNode(host, port);
+
+        if ( ! replicaNode.isPresent()) return;
 
         String nodeState = (String) dbObject.get("stateStr");
         if (NodeState.DB_STATE_MAP.containsKey(nodeState)) {
-            replicaNode.setState(NodeState.DB_STATE_MAP.get(nodeState));
+            replicaNode.get().setState(NodeState.DB_STATE_MAP.get(nodeState));
         }
     }
 }

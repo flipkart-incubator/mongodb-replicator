@@ -1,5 +1,6 @@
 package flipkart.mongo.replicator.bootstrap;
 
+import com.google.common.base.Function;
 import flipkart.mongo.node.discovery.ReplicaDiscovery;
 import flipkart.mongo.replicator.cluster.ClusterManager;
 import flipkart.mongo.replicator.cluster.ClusterReplicator;
@@ -9,7 +10,6 @@ import flipkart.mongo.replicator.core.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Created by kishan.gajjar on 30/10/14.

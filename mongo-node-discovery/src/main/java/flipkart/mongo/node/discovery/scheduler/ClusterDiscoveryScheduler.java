@@ -22,8 +22,6 @@ public class ClusterDiscoveryScheduler implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("IN SCHEDULER");
-
         ReplicaDiscovery replicaDiscovery = new ReplicaDiscovery(configSvrNodes);
         List<ReplicaSetConfig> replicaSetConfigs = replicaDiscovery.discover();
 

@@ -1,6 +1,9 @@
 package flipkart.mongo.replicator.core.model;
 
+import com.google.common.base.Optional;
+
 import java.util.List;
+
 
 /**
  * Created by pradeep on 09/10/14.
@@ -19,13 +22,13 @@ public class ReplicaSetConfig {
         return nodes;
     }
 
-    public Node nodeWithConfigs(String host, int port) {
+    public Optional<Node> findNode(String host, int port) {
         for (Node node : nodes) {
             if (node.host.equals(host) && node.port == port) {
-                return node;
+                return Optional.of(node);
             }
         }
-        return null;
+        return Optional.absent();
     }
 
     public Node getMasterNode() {

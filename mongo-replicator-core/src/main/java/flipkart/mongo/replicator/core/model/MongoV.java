@@ -1,6 +1,7 @@
 package flipkart.mongo.replicator.core.model;
 
-import java.util.Optional;
+
+import com.google.common.base.Optional;
 
 /**
  * Created by pradeep on 17/10/14.
@@ -21,7 +22,7 @@ public class MongoV {
     }
 
     public MongoV(int major, int minor) {
-        this(major, minor, Optional.<Integer>empty());
+        this(major, minor, Optional.<Integer>absent());
     }
 
 

@@ -1,5 +1,6 @@
 package flipkart.mongo.replicator.cluster;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
@@ -18,7 +19,6 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 /**
  * Created by pradeep on 29/10/14.
@@ -95,4 +95,6 @@ public class ClusterReplicator extends AbstractService {
 
         return scheduler;
     }
+
+    // Callback
 }
