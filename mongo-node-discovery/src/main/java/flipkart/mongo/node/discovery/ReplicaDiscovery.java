@@ -13,11 +13,13 @@ import java.util.List;
 /**
  * Created by kishan.gajjar on 30/10/14.
  */
-public class ReplicaDiscover {
-    private Node configSvrNode;
+public class ReplicaDiscovery {
+    private List<Node> configSvrNodes;
+    private static final String CONFIG_DB_NAME = "config";
+    private static final String CONFIG_TABLE_NAME = "shards";
 
-    public ReplicaDiscover(Node configSvrNode) {
-        this.configSvrNode = configSvrNode;
+    public ReplicaDiscovery(List<Node> configSvrNodes) {
+        this.configSvrNodes = configSvrNodes;
     }
 
     public List<ReplicaSetConfig> discover() {
@@ -25,8 +27,8 @@ public class ReplicaDiscover {
         List<ReplicaSetConfig> replicaSetConfigs = this.constructReplicaSets();
 
         for (ReplicaSetConfig replicaSetConfig : replicaSetConfigs) {
-            NodeDiscover nodeDiscover = new NodeDiscover();
-            nodeDiscover.discover(replicaSetConfig);
+            NodeDiscovery nodeDiscovery = new NodeDiscovery(replicaSetConfig);
+            nodeDiscovery.discover();
         }
 
         return replicaSetConfigs;
@@ -35,15 +37,21 @@ public class ReplicaDiscover {
     private List<ReplicaSetConfig> constructReplicaSets() {
 
         List<ReplicaSetConfig> replicaSetConfigs = Lists.newArrayList();
-        Mongo client;
-        try {
-            client = configSvrNode.getMongoURI().connect();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            throw new RuntimeException(); //HACK
+        Mongo client = null;
+        for (Node configSvrNode : configSvrNodes) {
+            try {
+                client = configSvrNode.getMongoURI().connect();
+                break;
+            } catch (UnknownHostException e) {
+                System.out.println("Not able to connect configSvr: " + configSvrNode.getMongoURI());
+                e.printStackTrace();
+            }
         }
 
-        DBCursor dbCursor = client.getDB("config").getCollection("shards").find();
+        if (client == null)
+            throw new RuntimeException();
+
+        DBCursor dbCursor = client.getDB(CONFIG_DB_NAME).getCollection(CONFIG_TABLE_NAME).find();
         while (dbCursor.hasNext()) {
             DBObject dbObject = dbCursor.next();
             String shardName = (String) dbObject.get("_id");
