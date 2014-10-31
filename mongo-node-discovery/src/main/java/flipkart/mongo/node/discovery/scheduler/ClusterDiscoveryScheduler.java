@@ -1,7 +1,7 @@
 package flipkart.mongo.node.discovery.scheduler;
 
 import com.google.common.collect.Lists;
-import flipkart.mongo.node.discovery.ReplicaDiscover;
+import flipkart.mongo.node.discovery.ReplicaDiscovery;
 import flipkart.mongo.node.discovery.interfaces.IDiscoveryCallback;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
@@ -25,8 +25,8 @@ public class ClusterDiscoveryScheduler implements Runnable {
         System.out.println("IN SCHEDULER");
 
         Node configSvrNode = configSvrNodes.get(0);
-        ReplicaDiscover replicaDiscover = new ReplicaDiscover(configSvrNode);
-        List<ReplicaSetConfig> replicaSetConfigs = replicaDiscover.discover();
+        ReplicaDiscovery replicaDiscovery = new ReplicaDiscovery(configSvrNode);
+        List<ReplicaSetConfig> replicaSetConfigs = replicaDiscovery.discover();
 
         /**
          * notifying the callbacks with the updated replicaConfigs

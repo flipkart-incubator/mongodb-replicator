@@ -15,32 +15,35 @@ import java.util.List;
 /**
  * Created by kishan.gajjar on 30/10/14.
  */
-public class NodeDiscover {
+public class NodeDiscovery {
 
+    private ReplicaSetConfig replicaSetConfig;
     private static final String DB_FOR_DISCOVERY = "admin";
+
+    public NodeDiscovery(ReplicaSetConfig replicaSetConfig) {
+        this.replicaSetConfig = replicaSetConfig;
+    }
 
     /**
      * will connect to one of the shard in replica set and update and nodes in the replicaSet
-     *
-     * @param replicaSetConfig
      */
-    public void discover(ReplicaSetConfig replicaSetConfig) {
-
-        List<Node> replicaNodes = replicaSetConfig.getNodes();
-        if (replicaNodes.isEmpty())
-            return;
-
-        Node replicaNode = replicaNodes.get(0);
+    public void discover() {
 
         Mongo client = null;
-        try {
-            client = replicaNode.getMongoURI().connect();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            throw new RuntimeException(); // HACK
+        for (Node replicaNode : replicaSetConfig.getNodes()) {
+            try {
+                client = replicaNode.getMongoURI().connect();
+                break;
+            } catch (UnknownHostException e) {
+                System.out.println("Not able to connect to replicaNode: " + replicaNode.getMongoURI());
+                e.printStackTrace();
+            }
         }
-        DB dbConnection = client.getDB(DB_FOR_DISCOVERY);
 
+        if (client == null)
+            return;
+
+        DB dbConnection = client.getDB(DB_FOR_DISCOVERY);
         CommandResult replSetGetStatus = dbConnection.command("replSetGetStatus");
         List<DBObject> dbDataList = (ArrayList<DBObject>) replSetGetStatus.get("members");
         for (DBObject dbObject : dbDataList) {
