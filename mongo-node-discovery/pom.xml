@@ -18,11 +18,6 @@
             <artifactId>mongo-replicator-core</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>mongo-replicator</groupId>
-            <version>1.0-SNAPSHOT</version>
-            <artifactId>mongo-replicator-cluster</artifactId>
-        </dependency>
     </dependencies>
 
 </project>

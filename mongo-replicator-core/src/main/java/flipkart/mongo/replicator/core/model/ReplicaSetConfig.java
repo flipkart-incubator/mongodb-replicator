@@ -27,4 +27,17 @@ public class ReplicaSetConfig {
         }
         return null;
     }
+
+    public Node getMasterNode() {
+        for (Node node : nodes) {
+            if (node.getState().equals(NodeState.PRIMARY))
+                return node;
+        }
+        return null;
+    }
+
+    @Override
+    public int hashCode() {
+        return (nodes != null ? nodes.hashCode() : 0);
+    }
 }
