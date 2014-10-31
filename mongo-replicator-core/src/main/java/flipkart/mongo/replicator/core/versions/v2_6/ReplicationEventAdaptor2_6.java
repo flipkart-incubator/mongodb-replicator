@@ -12,9 +12,10 @@ public class ReplicationEventAdaptor2_6 implements IReplicationEventAdaptor {
 
     @Override
     public ReplicationEvent convert(DBObject dbObject) {
-        ReplicationEvent event = new ReplicationEvent();
-        event.operation = dbObject.get("op").toString();
-        event.v = (BSONTimestamp) dbObject.get("ts");
-        return event;
+        String operation = dbObject.get("op").toString();
+        BSONTimestamp v = (BSONTimestamp) dbObject.get("ts");
+        Long h = (Long) dbObject.get("h");
+        String namespace = dbObject.get("ns").toString();
+        return new ReplicationEvent(operation, v, h, namespace, (DBObject) dbObject.get("o"));
     }
 }

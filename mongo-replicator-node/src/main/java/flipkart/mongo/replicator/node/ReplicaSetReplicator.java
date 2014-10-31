@@ -13,6 +13,7 @@ import org.bson.types.BSONTimestamp;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 
 /**
  * Created by pradeep on 09/10/14.
@@ -23,13 +24,15 @@ public class ReplicaSetReplicator extends AbstractService {
     private final VersionHandler versionHandler;
     private final ExecutorService replicatorExecutor;
     private final ReplicaSetManager replicaSetManager;
+    private final Function<ReplicationEvent, Boolean> oplogFilter;
 
 
-    public ReplicaSetReplicator(ReplicaSetManager replicaSetManager, IReplicationHandler replicationHandler, MongoV version) {
+    public ReplicaSetReplicator(ReplicaSetManager replicaSetManager, IReplicationHandler replicationHandler, MongoV version, Function<ReplicationEvent, Boolean> oplogFilter) {
         this.replicaSetManager = replicaSetManager;
         this.replicationHandler = replicationHandler;
         this.versionHandler = VersionManager.singleton().getVersionHandler(version);
         this.replicatorExecutor = Executors.newSingleThreadExecutor();
+        this.oplogFilter = oplogFilter;
     }
 
     @Override
@@ -65,7 +68,11 @@ public class ReplicaSetReplicator extends AbstractService {
                 while ( cursor.hasNext() ) {
                     DBObject obj = cursor.next();
                     ReplicationEvent event = versionHandler.getReplicationEventAdaptor().convert(obj);
-                    replicationHandler.replicate(event);
+
+                    if ( oplogFilter.apply(event) ) {
+                        replicationHandler.replicate(event);
+                    }
+
                     cpHandler.checkPoint(replicaSetManager.getRsConfig().shardName, event.v);
                 }
             }
