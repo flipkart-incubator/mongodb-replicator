@@ -15,19 +15,33 @@ import java.util.List;
 /**
  * Created by kishan.gajjar on 30/10/14.
  */
-public class ClusterReplicatorBootstrap {
+//TODO: replace this with builder
+public class ClusterReplicatorBuilder {
 
-    private final IReplicationHandler replicationHandler;
-    private final List<Node> configSvrNodes;
+    private IReplicationHandler replicationHandler;
+    private List<Node> configSvrNodes;
     private MongoV version;
 
-    public ClusterReplicatorBootstrap(List<Node> confgSvrNodes, IReplicationHandler replicationHandler) {
-        this.configSvrNodes = confgSvrNodes;
-        this.replicationHandler = replicationHandler;
-        this.version = new MongoV(2, 6);
+    public ClusterReplicatorBuilder(List<Node> cfgSvrNodes) {
+        withConfigSvrNodes(cfgSvrNodes);
     }
 
-    public void initialize() throws Exception {
+    public ClusterReplicatorBuilder withConfigSvrNodes(List<Node> cfgSvrNodes) {
+        this.configSvrNodes = cfgSvrNodes;
+        return this;
+    }
+
+    public ClusterReplicatorBuilder withReplicationHandler(IReplicationHandler replicationHandler) {
+        this.replicationHandler = replicationHandler;
+        return this;
+    }
+
+    public ClusterReplicatorBuilder withMongoVersion(MongoV version) {
+        this.version = version;
+        return this;
+    }
+
+    public ClusterReplicator build() throws Exception {
 
         Node configSvrNode = configSvrNodes.get(0);
         ReplicaDiscover replicaDiscover = new ReplicaDiscover(configSvrNode);
@@ -35,7 +49,8 @@ public class ClusterReplicatorBootstrap {
 
         Cluster cluster = new Cluster(replicaSetConfigs, Arrays.asList(configSvrNode));
         ClusterManager clusterManager = new ClusterManager(cluster);
-        ClusterReplicator clusterReplicator = new ClusterReplicator(clusterManager, replicationHandler, version);
-        clusterReplicator.startAsync();
+
+        return new ClusterReplicator(clusterManager, replicationHandler, version);
     }
+
 }

@@ -27,8 +27,8 @@ public class ClusterReplicator extends AbstractService {
     public final IReplicationHandler replicationHandler;
     public final VersionHandler versionHandler;
     private final MongoV version;
-    private ServiceManager clusterReplicatorService;
     private ScheduledExecutorService scheduler;
+    private ServiceManager replicasReplicatorServiceManager;
 
     public ClusterReplicator(ClusterManager clusterManager, IReplicationHandler replicationHandler, MongoV version) {
         this.clusterManager = clusterManager;
@@ -45,8 +45,8 @@ public class ClusterReplicator extends AbstractService {
             services.add(new ReplicaSetReplicator(replSetManager, replicationHandler, version));
         }
 
-        clusterReplicatorService = new ServiceManager(services);
-        clusterReplicatorService.addListener(new ServiceManager.Listener() {
+        replicasReplicatorServiceManager = new ServiceManager(services);
+        replicasReplicatorServiceManager.addListener(new ServiceManager.Listener() {
             @Override
             public void healthy() {
 
@@ -63,7 +63,7 @@ public class ClusterReplicator extends AbstractService {
             }
         });
 
-        clusterReplicatorService.startAsync();
+        replicasReplicatorServiceManager.startAsync();
         scheduler = attachScheduler();
     }
 
@@ -73,7 +73,7 @@ public class ClusterReplicator extends AbstractService {
         if (scheduler != null)
             scheduler.shutdown();
 
-        clusterReplicatorService.stopAsync();
+        replicasReplicatorServiceManager.stopAsync();
     }
 
     private ScheduledExecutorService attachScheduler() {
@@ -91,5 +91,4 @@ public class ClusterReplicator extends AbstractService {
 
         return scheduler;
     }
-
 }
