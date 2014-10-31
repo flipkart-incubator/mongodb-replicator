@@ -2,11 +2,13 @@ package flipkart.mongo.replicator.node;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.mongodb.*;
+import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 import flipkart.mongo.replicator.core.interfaces.VersionHandler;
 import flipkart.mongo.replicator.core.model.MongoV;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
 import flipkart.mongo.replicator.core.versions.VersionManager;
+import org.bson.types.BSONTimestamp;
 
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
@@ -35,6 +37,10 @@ public class ReplicaSetReplicator extends AbstractService {
         replicatorExecutor.submit(new Runnable() {
             @Override
             public void run() {
+
+                String shardId = replicaSetManager.getRsConfig().shardName;
+                ICheckPointHandler cpHandler = replicaSetManager.getCheckPointHandler();
+
                 Mongo client = null;
                 try {
                     client = replicaSetManager.getMaster().connect();
@@ -45,12 +51,22 @@ public class ReplicaSetReplicator extends AbstractService {
 
                 DB db = client.getDB("local");
 
-                DBCursor cursor = db.getCollection("oplog.rs").find().sort(new BasicDBObject("$natural", 1)).addOption(Bytes.QUERYOPTION_TAILABLE);
+                BSONTimestamp lastCp = cpHandler.getCheckPoint(shardId);
+
+                DBCollection collection = db.getCollection("oplog.rs");
+                DBCursor r;
+                if ( lastCp == null) {
+                    r = collection.find();
+                } else {
+                    r = collection.find(new BasicDBObject("ts", new BasicDBObject("$gt", lastCp)));
+                }
+                DBCursor cursor = r.sort(new BasicDBObject("$natural", 1)).addOption(Bytes.QUERYOPTION_TAILABLE);
 
                 while ( cursor.hasNext() ) {
                     DBObject obj = cursor.next();
                     ReplicationEvent event = versionHandler.getReplicationEventAdaptor().convert(obj);
                     replicationHandler.replicate(event);
+                    cpHandler.checkPoint(replicaSetManager.getRsConfig().shardName, event.v);
                 }
             }
         });
