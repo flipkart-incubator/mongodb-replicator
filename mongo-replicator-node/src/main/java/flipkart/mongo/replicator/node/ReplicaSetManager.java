@@ -2,7 +2,6 @@ package flipkart.mongo.replicator.node;
 
 import com.mongodb.MongoURI;
 import flipkart.mongo.replicator.core.model.Node;
-import flipkart.mongo.replicator.core.model.NodeState;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 
 /**
@@ -18,11 +17,9 @@ public class ReplicaSetManager {
 
     public MongoURI getMaster() {
 
-        for ( Node node : rsConfig.getNodes()) {
-            if ( node.getState().equals(NodeState.PRIMARY) ) {
-                return node.getMongoURI();
-            }
-        }
+        Node masterNode = rsConfig.getMasterNode();
+        if (masterNode != null)
+            return masterNode.getMongoURI();
 
         return null; //HACK
     }

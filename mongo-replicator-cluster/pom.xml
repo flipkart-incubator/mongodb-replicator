@@ -17,6 +17,11 @@
             <artifactId>mongo-replicator-node</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>mongo-replicator</groupId>
+            <artifactId>mongo-node-discovery</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

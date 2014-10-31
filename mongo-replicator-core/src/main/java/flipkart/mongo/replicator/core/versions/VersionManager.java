@@ -17,7 +17,7 @@ public class VersionManager {
     protected VersionManager() {
         Reflections reflections = new Reflections("flipkart.mongo.replicator.core.versions");
         Set<Class<? extends VersionHandler>> classes = reflections.getSubTypesOf(VersionHandler.class);
-        ImmutableList.Builder<VersionHandler> builder = new ImmutableList.Builder<>();
+        ImmutableList.Builder<VersionHandler> builder = new ImmutableList.Builder<VersionHandler>();
 
         for ( Class<? extends VersionHandler> clazz : classes) {
             try {

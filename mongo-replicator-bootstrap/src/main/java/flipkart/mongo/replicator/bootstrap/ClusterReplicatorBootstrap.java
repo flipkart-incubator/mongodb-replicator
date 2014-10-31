@@ -1,7 +1,5 @@
 package flipkart.mongo.replicator.bootstrap;
 
-import com.mongodb.MongoURI;
-import flipkart.mongo.node.discovery.NodeDiscover;
 import flipkart.mongo.node.discovery.ReplicaDiscover;
 import flipkart.mongo.replicator.cluster.ClusterManager;
 import flipkart.mongo.replicator.cluster.ClusterReplicator;
@@ -31,16 +29,13 @@ public class ClusterReplicatorBootstrap {
 
     public void initialize() throws Exception {
 
-        ReplicaDiscover replicaDiscover = new ReplicaDiscover();
-        List<ReplicaSetConfig> replicaSetConfigs = replicaDiscover.discover(configSvrNodes.get(0));
+        Node configSvrNode = configSvrNodes.get(0);
+        ReplicaDiscover replicaDiscover = new ReplicaDiscover(configSvrNode);
+        List<ReplicaSetConfig> replicaSetConfigs = replicaDiscover.discover();
 
-        for (ReplicaSetConfig replicaSetConfig : replicaSetConfigs) {
-            NodeDiscover nodeDiscover = new NodeDiscover();
-            nodeDiscover.discover(replicaSetConfig);
-        }
-
-        Cluster cluster = new Cluster(replicaSetConfigs, Arrays.asList(configSvrNodes.get(0)) );
+        Cluster cluster = new Cluster(replicaSetConfigs, Arrays.asList(configSvrNode));
         ClusterManager clusterManager = new ClusterManager(cluster);
-        new ClusterReplicator(clusterManager, replicationHandler, version).startAsync();
+        ClusterReplicator clusterReplicator = new ClusterReplicator(clusterManager, replicationHandler, version);
+        clusterReplicator.startAsync();
     }
 }

@@ -14,20 +14,36 @@ import java.util.List;
  * Created by kishan.gajjar on 30/10/14.
  */
 public class ReplicaDiscover {
+    private Node configSvrNode;
 
-    public List<ReplicaSetConfig> discover(Node configSvrNode) {
+    public ReplicaDiscover(Node configSvrNode) {
+        this.configSvrNode = configSvrNode;
+    }
+
+    public List<ReplicaSetConfig> discover() {
+
+        List<ReplicaSetConfig> replicaSetConfigs = this.constructReplicaSets();
+
+        for (ReplicaSetConfig replicaSetConfig : replicaSetConfigs) {
+            NodeDiscover nodeDiscover = new NodeDiscover();
+            nodeDiscover.discover(replicaSetConfig);
+        }
+
+        return replicaSetConfigs;
+    }
+
+    private List<ReplicaSetConfig> constructReplicaSets() {
 
         List<ReplicaSetConfig> replicaSetConfigs = Lists.newArrayList();
-
-        Mongo client = null;
+        Mongo client;
         try {
             client = configSvrNode.getMongoURI().connect();
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            new RuntimeException(); //HACK
+            throw new RuntimeException(); //HACK
         }
-        DBCursor dbCursor = client.getDB("config").getCollection("shards").find();
 
+        DBCursor dbCursor = client.getDB("config").getCollection("shards").find();
         while (dbCursor.hasNext()) {
             DBObject dbObject = dbCursor.next();
             String shardName = (String) dbObject.get("_id");
@@ -46,8 +62,8 @@ public class ReplicaDiscover {
     private List<Node> getReplicaNodes(String hostString) {
 
         List<Node> replicaNodes = Lists.newArrayList();
-        String[] hostsInfo = hostString.split(",");
 
+        String[] hostsInfo = hostString.split(",");
         for (String hostInfo : hostsInfo) {
 
             String[] data = hostInfo.split("/");
