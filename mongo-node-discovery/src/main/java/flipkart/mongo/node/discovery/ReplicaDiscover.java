@@ -14,7 +14,6 @@ import java.util.List;
  * Created by kishan.gajjar on 30/10/14.
  */
 public class ReplicaDiscover {
-
     public List<ReplicaSetConfig> discover(Node configSvrNode) {
 
         List<ReplicaSetConfig> replicaSetConfigs = Lists.newArrayList();

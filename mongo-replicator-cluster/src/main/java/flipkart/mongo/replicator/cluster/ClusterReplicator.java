@@ -23,7 +23,7 @@ public class ClusterReplicator extends AbstractService {
     public final IReplicationHandler replicationHandler;
     public final VersionHandler versionHandler;
     private final MongoV version;
-    private ServiceManager clusterReplicatorService;
+    private ServiceManager replicasReplicatorServiceManager;
 
     public ClusterReplicator(ClusterManager clusterManager, IReplicationHandler replicationHandler, MongoV version) {
         this.clusterManager = clusterManager;
@@ -40,8 +40,8 @@ public class ClusterReplicator extends AbstractService {
             services.add(new ReplicaSetReplicator(replSetManager, replicationHandler, version));
         }
 
-        clusterReplicatorService = new ServiceManager(services);
-        clusterReplicatorService.addListener(new ServiceManager.Listener() {
+        replicasReplicatorServiceManager = new ServiceManager(services);
+        replicasReplicatorServiceManager.addListener(new ServiceManager.Listener() {
             @Override
             public void healthy() {
 
@@ -58,11 +58,11 @@ public class ClusterReplicator extends AbstractService {
             }
         });
 
-        clusterReplicatorService.startAsync();
+        replicasReplicatorServiceManager.startAsync();
     }
 
     @Override
     protected void doStop() {
-        clusterReplicatorService.stopAsync();
+        replicasReplicatorServiceManager.stopAsync();
     }
 }
