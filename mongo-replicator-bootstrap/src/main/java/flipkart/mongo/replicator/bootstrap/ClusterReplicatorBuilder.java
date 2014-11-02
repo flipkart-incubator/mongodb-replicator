@@ -62,13 +62,12 @@ public class ClusterReplicatorBuilder {
     }
 
 
-    public ClusterReplicator build() throws Exception {
+    public ClusterManager build() throws Exception {
 
         ReplicaDiscovery replicaDiscover = new ReplicaDiscovery(configSvrNodes);
         List<ReplicaSetConfig> replicaSetConfigs = replicaDiscover.discover();
         Cluster cluster = new Cluster(replicaSetConfigs, configSvrNodes);
-        ClusterManager clusterManager = new ClusterManager(cluster, checkPointHandler);
-        return new ClusterReplicator(clusterManager, replicationHandler, version, filter);
+        return new ClusterManager(cluster, checkPointHandler, replicationHandler, version, filter);
     }
 
 }

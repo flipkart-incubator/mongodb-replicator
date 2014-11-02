@@ -3,7 +3,7 @@ package test;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import flipkart.mongo.replicator.bootstrap.ClusterReplicatorBuilder;
-import flipkart.mongo.replicator.cluster.ClusterReplicator;
+import flipkart.mongo.replicator.cluster.ClusterManager;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 import flipkart.mongo.replicator.core.model.MongoV;
@@ -25,9 +25,9 @@ public class Main {
      */
 
     public static void main(String args[]) throws Exception {
-        ClusterReplicator replicator = new ClusterReplicatorBuilder()
-//                .addConfigSvrNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
-                .addConfigSvrNode(new Node("cart-mongo4.nm.flipkart.com", 27200))
+        ClusterManager clusterManager = new ClusterReplicatorBuilder()
+                .addConfigSvrNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
+//                .addConfigSvrNode(new Node("cart-mongo4.nm.flipkart.com", 27200))
 //                .addConfigSvrNode(new Node("cart-mongo6.nm.flipkart.com", 27200))
                 .withReplicationHandler(new Test())
                 .withCheckPoint(new InMemCheckPointHandler())
@@ -35,7 +35,7 @@ public class Main {
                 .withMongoVersion(new MongoV(2, 6))
                 .build();
 
-        replicator.startAsync();
+        clusterManager.startReplicator();
     }
 
     public static class InMemCheckPointHandler implements ICheckPointHandler {

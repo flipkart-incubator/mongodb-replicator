@@ -2,7 +2,6 @@ package flipkart.mongo.replicator.node;
 
 import com.mongodb.MongoURI;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
-import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 
 /**
@@ -24,11 +23,7 @@ public class ReplicaSetManager {
 
     public MongoURI getMaster() {
 
-        Node masterNode = rsConfig.getMasterNode();
-        if (masterNode != null)
-            return masterNode.getMongoURI();
-
-        return null; //HACK
+        return rsConfig.getMasterClientURI();
     }
 
     public ICheckPointHandler getCheckPointHandler() {

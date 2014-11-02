@@ -1,6 +1,7 @@
 package flipkart.mongo.replicator.core.model;
 
 import com.google.common.base.Optional;
+import com.mongodb.MongoURI;
 
 import java.util.List;
 
@@ -31,12 +32,21 @@ public class ReplicaSetConfig {
         return Optional.absent();
     }
 
-    public Node getMasterNode() {
+    public Optional<Node> getMasterNode() {
         for (Node node : nodes) {
             if (node.getState().equals(NodeState.PRIMARY))
-                return node;
+                return Optional.of(node);
         }
-        return null;
+        return Optional.absent();
+    }
+
+    public MongoURI getMasterClientURI() {
+
+        Optional<Node> masterNode = this.getMasterNode();
+        if (masterNode.isPresent())
+            return masterNode.get().getMongoURI();
+
+        throw new RuntimeException("MasterNode not found");
     }
 
     @Override
