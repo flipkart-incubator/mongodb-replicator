@@ -9,5 +9,5 @@ import java.util.List;
  */
 public interface IDiscoveryCallback {
 
-    public void updateReplicaSetConfigs(List<ReplicaSetConfig> replicaSetConfigs);
+    public void updateReplicaSetConfigs(List<ReplicaSetConfig> updatedRSConfigs);
 }

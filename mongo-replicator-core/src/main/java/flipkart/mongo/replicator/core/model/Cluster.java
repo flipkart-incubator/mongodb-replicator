@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class Cluster {
 
-    public final ImmutableList<ReplicaSetConfig> replicaSets;
+    private ImmutableList<ReplicaSetConfig> replicaSets;
 
     public final ImmutableList<Node> cfgsvrs;
 
@@ -17,5 +17,13 @@ public class Cluster {
         this.replicaSets = ImmutableList.copyOf(replicaSets);
         this.cfgsvrs = ImmutableList.copyOf(cfgsvrs);
 
+    }
+
+    public ImmutableList<ReplicaSetConfig> getReplicaSets() {
+        return replicaSets;
+    }
+
+    public void setReplicaSets(List<ReplicaSetConfig> replicaSets) {
+        this.replicaSets = ImmutableList.copyOf(replicaSets);
     }
 }

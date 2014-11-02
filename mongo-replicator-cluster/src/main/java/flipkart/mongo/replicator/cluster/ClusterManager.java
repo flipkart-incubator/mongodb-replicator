@@ -1,8 +1,10 @@
 package flipkart.mongo.replicator.cluster;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Service;
 import flipkart.mongo.node.discovery.interfaces.IDiscoveryCallback;
+import flipkart.mongo.node.discovery.scheduler.ClusterDiscoveryScheduler;
 import flipkart.mongo.node.discovery.utils.DiscoveryUtils;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
@@ -14,17 +16,22 @@ import flipkart.mongo.replicator.node.ReplicaSetReplicator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by pradeep on 29/10/14.
  */
 public class ClusterManager implements IDiscoveryCallback {
 
-    public Cluster cluster;
+    private Cluster cluster;
     public final IReplicationHandler replicationHandler;
     private final ICheckPointHandler checkPointHandler;
     public final VersionHandler versionHandler;
     private final Function<ReplicationEvent, Boolean> oplogFilter;
+    private Optional<ClusterReplicator> clusterReplicator;
+    private Optional<ScheduledExecutorService> scheduler;
 
     // Find out:
     // a) shard add/remove,
@@ -43,8 +50,22 @@ public class ClusterManager implements IDiscoveryCallback {
 
     public void startReplicator() {
 
-        ClusterReplicator clusterReplicator = new ClusterReplicator(this.getReplicaSetReplicators());
-        clusterReplicator.doStart();
+        ClusterReplicator replicator = new ClusterReplicator(this.getReplicaSetReplicators());
+        clusterReplicator = Optional.of(replicator);
+        replicator.doStart();
+
+        // attaching the scheduler for updating the RSConfigs
+        scheduler = Optional.of(this.attachScheduler());
+    }
+
+    public void stopReplicator() {
+
+        // stopping clusterReplicator
+        if (clusterReplicator.isPresent())
+            clusterReplicator.get().doStop();
+        // stopping the scheduler
+        if (scheduler.isPresent())
+            scheduler.get().shutdown();
     }
 
     private TaskContext getTaskContext() {
@@ -62,30 +83,43 @@ public class ClusterManager implements IDiscoveryCallback {
 
         Set<Service> replicaSetReplicators = new LinkedHashSet<Service>();
         TaskContext taskContext = this.getTaskContext();
-        for (ReplicaSetConfig rsConfig : cluster.replicaSets) {
+        for (ReplicaSetConfig rsConfig : cluster.getReplicaSets()) {
             replicaSetReplicators.add(new ReplicaSetReplicator(taskContext, rsConfig));
         }
 
         return replicaSetReplicators;
     }
 
-//    public ImmutableList<ReplicaSetManager> getReplicaSetManagers() {
-//        ImmutableList.Builder<ReplicaSetManager> builder = new ImmutableList.Builder<ReplicaSetManager>();
-//        for (ReplicaSetConfig rsConfig : cluster.replicaSets) {
-//            builder.add(new ReplicaSetManager(rsConfig, checkPointHandler));
-//        }
-//
-//        return builder.build();
-//    }
-
     @Override
-    public void updateReplicaSetConfigs(List<ReplicaSetConfig> replicaSetConfigs) {
+    public void updateReplicaSetConfigs(List<ReplicaSetConfig> updatedRSConfigs) {
 
         System.out.println("GOT Updated rsConfigs");
-        if (DiscoveryUtils.hasReplicaSetsChanged(cluster.replicaSets, replicaSetConfigs)) {
-            cluster = new Cluster(replicaSetConfigs, cluster.cfgsvrs);
-//            TODO: ReplicaSets has been changed.. update the replicator
+        if (DiscoveryUtils.hasReplicaSetsChanged(cluster.getReplicaSets(), updatedRSConfigs)) {
+
+            /**
+             * - stopping currently running replicators
+             * - updating replicaSetConfigs in cluster
+             * - starting replicators with updated configs
+             */
+            this.stopReplicator();
+            this.cluster.setReplicaSets(updatedRSConfigs);
+            this.startReplicator();
             System.out.println("RSConfigs has been updated");
         }
+    }
+
+    private ScheduledExecutorService attachScheduler() {
+        //TODO: Need to get from config builder
+        long initialDelay = 10;
+        long periodicDelay = 5;
+
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        ClusterDiscoveryScheduler clusterDiscoveryScheduler = new ClusterDiscoveryScheduler(cluster.cfgsvrs);
+        // registering clusterDiscovery for config updates
+        clusterDiscoveryScheduler.registerCallback(this);
+
+        // starting the scheduler
+        scheduler.scheduleWithFixedDelay(clusterDiscoveryScheduler, initialDelay, periodicDelay, TimeUnit.SECONDS);
+        return scheduler;
     }
 }
