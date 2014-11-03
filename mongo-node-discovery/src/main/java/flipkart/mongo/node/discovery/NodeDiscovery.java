@@ -7,6 +7,7 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import flipkart.mongo.node.discovery.exceptions.ConnectionException;
 import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
+import flipkart.mongo.replicator.core.exceptions.ReplicatorErrorCode;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.NodeState;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
@@ -45,7 +46,7 @@ public class NodeDiscovery {
         }
 
         if (client == null)
-            throw new MongoDiscoveryException("MongoClient for NodeDiscovery is not initiated. Aborting the node discovery");
+            throw new MongoDiscoveryException(ReplicatorErrorCode.NODE_MONGO_CLIENT_FAILURE);
 
         DB dbConnection = client.getDB(DB_FOR_DISCOVERY);
         CommandResult replSetGetStatus = dbConnection.command("replSetGetStatus");

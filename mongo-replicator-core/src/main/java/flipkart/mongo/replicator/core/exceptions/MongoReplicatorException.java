@@ -5,11 +5,11 @@ package flipkart.mongo.replicator.core.exceptions;
  */
 public abstract class MongoReplicatorException extends Exception {
 
-    public MongoReplicatorException(String message) {
-        super(message);
+    public MongoReplicatorException(ReplicatorErrorCode errorCode) {
+        super(errorCode.getMessage());
     }
 
-    public MongoReplicatorException(String message, Throwable cause) {
-        super(message, cause);
+    public MongoReplicatorException(ReplicatorErrorCode errorCode, Throwable cause) {
+        super(errorCode.getMessage(), cause);
     }
 }

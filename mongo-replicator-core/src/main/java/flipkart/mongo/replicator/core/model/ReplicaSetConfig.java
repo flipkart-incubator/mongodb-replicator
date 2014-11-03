@@ -3,6 +3,7 @@ package flipkart.mongo.replicator.core.model;
 import com.google.common.base.Optional;
 import com.mongodb.MongoURI;
 import flipkart.mongo.replicator.core.exceptions.MongoReplicaSetException;
+import flipkart.mongo.replicator.core.exceptions.ReplicatorErrorCode;
 
 import java.util.List;
 
@@ -47,7 +48,7 @@ public class ReplicaSetConfig {
         if (masterNode.isPresent())
             return masterNode.get().getMongoURI();
 
-        throw new MongoReplicaSetException("MasterNode not found");
+        throw new MongoReplicaSetException(ReplicatorErrorCode.MASTER_NODE_NOT_FOUND);
     }
 
     @Override

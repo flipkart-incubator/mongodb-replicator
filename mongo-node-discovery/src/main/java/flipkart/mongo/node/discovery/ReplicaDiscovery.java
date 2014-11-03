@@ -6,6 +6,7 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import flipkart.mongo.node.discovery.exceptions.ConnectionException;
 import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
+import flipkart.mongo.replicator.core.exceptions.ReplicatorErrorCode;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class ReplicaDiscovery {
         }
 
         if (client == null)
-            throw new MongoDiscoveryException("MongoClient is not initiated. Aborting the replicaSet discovery");
+            throw new MongoDiscoveryException(ReplicatorErrorCode.REPLICA_SET_MONGO_CLIENT_FAILURE);
 
         DBCursor dbCursor = client.getDB(CONFIG_DB_NAME).getCollection(CONFIG_TABLE_NAME).find();
         while (dbCursor.hasNext()) {
