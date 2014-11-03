@@ -2,6 +2,7 @@ package flipkart.mongo.replicator.core.model;
 
 import com.google.common.base.Optional;
 import com.mongodb.MongoURI;
+import flipkart.mongo.replicator.core.exceptions.MongoReplicaSetException;
 
 import java.util.List;
 
@@ -40,17 +41,25 @@ public class ReplicaSetConfig {
         return Optional.absent();
     }
 
-    public MongoURI getMasterClientURI() {
+    public MongoURI getMasterClientURI() throws MongoReplicaSetException {
 
         Optional<Node> masterNode = this.getMasterNode();
         if (masterNode.isPresent())
             return masterNode.get().getMongoURI();
 
-        throw new RuntimeException("MasterNode not found");
+        throw new MongoReplicaSetException("MasterNode not found");
     }
 
     @Override
     public int hashCode() {
         return (nodes != null ? nodes.hashCode() : 0);
+    }
+
+    @Override
+    public String toString() {
+        return "ReplicaSetConfig{" +
+                "shardName='" + shardName + '\'' +
+                ", nodes=" + nodes +
+                '}';
     }
 }

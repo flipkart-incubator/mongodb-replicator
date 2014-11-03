@@ -10,13 +10,11 @@ import java.util.List;
 public class Cluster {
 
     private ImmutableList<ReplicaSetConfig> replicaSets;
-
     public final ImmutableList<Node> cfgsvrs;
 
     public Cluster(List<ReplicaSetConfig> replicaSets, List<Node> cfgsvrs) {
         this.replicaSets = ImmutableList.copyOf(replicaSets);
         this.cfgsvrs = ImmutableList.copyOf(cfgsvrs);
-
     }
 
     public ImmutableList<ReplicaSetConfig> getReplicaSets() {

@@ -3,6 +3,7 @@ package flipkart.mongo.replicator.bootstrap;
 import com.google.common.base.Function;
 import flipkart.mongo.node.discovery.ReplicaDiscovery;
 import flipkart.mongo.replicator.cluster.ClusterManager;
+import flipkart.mongo.replicator.core.exceptions.MongoReplicatorException;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 import flipkart.mongo.replicator.core.model.*;
@@ -68,7 +69,7 @@ public class ClusterManagerBuilder {
         return this;
     }
 
-    public ClusterManager build() throws Exception {
+    public ClusterManager build() throws MongoReplicatorException {
 
         ReplicaDiscovery replicaDiscover = new ReplicaDiscovery(configSvrNodes);
         List<ReplicaSetConfig> replicaSetConfigs = replicaDiscover.discover();

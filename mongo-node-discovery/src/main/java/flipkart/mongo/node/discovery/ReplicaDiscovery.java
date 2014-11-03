@@ -5,8 +5,11 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import flipkart.mongo.node.discovery.exceptions.ConnectionException;
+import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -14,6 +17,9 @@ import java.util.List;
  * Created by kishan.gajjar on 30/10/14.
  */
 public class ReplicaDiscovery {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReplicaDiscovery.class);
+
     private List<Node> configSvrNodes;
     private static final String CONFIG_DB_NAME = "config";
     private static final String CONFIG_TABLE_NAME = "shards";
@@ -22,7 +28,7 @@ public class ReplicaDiscovery {
         this.configSvrNodes = configSvrNodes;
     }
 
-    public List<ReplicaSetConfig> discover() {
+    public List<ReplicaSetConfig> discover() throws MongoDiscoveryException {
 
         List<ReplicaSetConfig> replicaSetConfigs = this.constructReplicaSets();
 
@@ -34,7 +40,7 @@ public class ReplicaDiscovery {
         return replicaSetConfigs;
     }
 
-    private List<ReplicaSetConfig> constructReplicaSets() {
+    private List<ReplicaSetConfig> constructReplicaSets() throws MongoDiscoveryException {
 
         List<ReplicaSetConfig> replicaSetConfigs = Lists.newArrayList();
         Mongo client = null;
@@ -43,13 +49,12 @@ public class ReplicaDiscovery {
                 client = MongoConnector.getMongoClient(configSvrNode.getMongoURI());
                 break;
             } catch (ConnectionException e) {
-                System.out.println("Not able to connect configSvr: " + configSvrNode.getMongoURI());
-                e.printStackTrace();
+                logger.warn("Not able to connect to configSvr: " + configSvrNode.getMongoURI(), e);
             }
         }
 
         if (client == null)
-            throw new RuntimeException();
+            throw new MongoDiscoveryException("MongoClient is not initiated. Aborting the replicaSet discovery");
 
         DBCursor dbCursor = client.getDB(CONFIG_DB_NAME).getCollection(CONFIG_TABLE_NAME).find();
         while (dbCursor.hasNext()) {

@@ -6,9 +6,12 @@ import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import flipkart.mongo.node.discovery.exceptions.ConnectionException;
+import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.NodeState;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.List;
  */
 public class NodeDiscovery {
 
+    private static final Logger logger = LoggerFactory.getLogger(NodeDiscovery.class);
     private ReplicaSetConfig replicaSetConfig;
     private static final String DB_FOR_DISCOVERY = "admin";
 
@@ -28,7 +32,7 @@ public class NodeDiscovery {
     /**
      * will connect to one of the shard in replica set and update and nodes in the replicaSet
      */
-    public void discover() {
+    public void discover() throws MongoDiscoveryException {
 
         Mongo client = null;
         for (Node replicaNode : replicaSetConfig.getNodes()) {
@@ -36,13 +40,12 @@ public class NodeDiscovery {
                 client = MongoConnector.getMongoClient(replicaNode.getMongoURI());
                 break;
             } catch (ConnectionException e) {
-                System.out.println("Not able to connect to replicaNode: " + replicaNode.getMongoURI());
-                e.printStackTrace();
+                logger.warn("Not able to connect to replicaNode: " + replicaNode.getMongoURI(), e);
             }
         }
 
         if (client == null)
-            return;
+            throw new MongoDiscoveryException("MongoClient for NodeDiscovery is not initiated. Aborting the node discovery");
 
         DB dbConnection = client.getDB(DB_FOR_DISCOVERY);
         CommandResult replSetGetStatus = dbConnection.command("replSetGetStatus");
@@ -60,7 +63,10 @@ public class NodeDiscovery {
         int port = Integer.parseInt(hostData[1]);
         Optional<Node> replicaNode = replicaSetConfig.findNode(host, port);
 
-        if ( ! replicaNode.isPresent()) return;
+        if (!replicaNode.isPresent()) {
+            logger.error(String.format("ReplicaNode (%s, %s) is not present in replicaSet: %s", host, port, replicaSetConfig));
+            return;
+        }
 
         String nodeState = (String) dbObject.get("stateStr");
         if (NodeState.DB_STATE_MAP.containsKey(nodeState)) {

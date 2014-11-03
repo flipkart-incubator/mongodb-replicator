@@ -55,4 +55,13 @@ public class Node {
         result = 31 * result + (state != null ? state.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "host='" + host + '\'' +
+                ", port=" + port +
+                ", state=" + state +
+                '}';
+    }
 }

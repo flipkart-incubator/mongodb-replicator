@@ -1,9 +1,11 @@
 package flipkart.mongo.replicator.node;
 
 import com.mongodb.*;
+import flipkart.mongo.replicator.core.exceptions.MongoReplicaSetException;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
 import flipkart.mongo.replicator.core.model.TaskContext;
+import flipkart.mongo.replicator.node.exceptions.ReplicationTaskException;
 import org.bson.types.BSONTimestamp;
 
 import java.net.UnknownHostException;
@@ -33,8 +35,9 @@ public class ReplicationTask implements Runnable {
         try {
             client = rsConfig.getMasterClientURI().connect();
         } catch (UnknownHostException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new ReplicationTaskException("Connection failure for masterClient. RSConfig: " + rsConfig, e);
+        } catch (MongoReplicaSetException e) {
+            throw new ReplicationTaskException("MasterNode not found. RSConfig: " + rsConfig, e);
         }
 
         DB db = client.getDB("local");

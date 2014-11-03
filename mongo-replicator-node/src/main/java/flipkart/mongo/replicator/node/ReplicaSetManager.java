@@ -1,6 +1,5 @@
 package flipkart.mongo.replicator.node;
 
-import com.mongodb.MongoURI;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 
@@ -19,11 +18,6 @@ public class ReplicaSetManager {
 
     public ReplicaSetConfig getRsConfig() {
         return rsConfig;
-    }
-
-    public MongoURI getMaster() {
-
-        return rsConfig.getMasterClientURI();
     }
 
     public ICheckPointHandler getCheckPointHandler() {

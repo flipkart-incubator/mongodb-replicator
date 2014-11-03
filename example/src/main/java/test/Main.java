@@ -4,12 +4,15 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import flipkart.mongo.replicator.bootstrap.ClusterManagerBuilder;
 import flipkart.mongo.replicator.cluster.ClusterManager;
+import flipkart.mongo.replicator.core.exceptions.MongoReplicatorException;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 import flipkart.mongo.replicator.core.model.MongoV;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
 import org.bson.types.BSONTimestamp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by pradeep on 09/10/14.
  */
 public class Main {
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     /*
     - Error Handling
@@ -24,19 +28,25 @@ public class Main {
     - EventAdaptor final changes
      */
 
-    public static void main(String args[]) throws Exception {
-        ClusterManager clusterManager = new ClusterManagerBuilder()
-                .addConfigSvrNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
+    public static void main(String args[]) {
+
+        try {
+
+            ClusterManager clusterManager = new ClusterManagerBuilder()
+                    .addConfigSvrNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
 //                .addConfigSvrNode(new Node("cart-mongo4.nm.flipkart.com", 27200))
 //                .addConfigSvrNode(new Node("cart-mongo6.nm.flipkart.com", 27200))
-                .withReplicationHandler(new Test())
-                .withCheckPoint(new InMemCheckPointHandler())
-                .withOplogFilter(new OplogFilter())
-                .withMongoVersion(new MongoV(2, 6))
-                .setSchedulerConfigs(10, 5)
-                .build();
+                    .withReplicationHandler(new Test())
+                    .withCheckPoint(new InMemCheckPointHandler())
+                    .withOplogFilter(new OplogFilter())
+                    .withMongoVersion(new MongoV(2, 6))
+                    .setSchedulerConfigs(10, 5)
+                    .build();
 
-        clusterManager.startReplicator();
+            clusterManager.startReplicator();
+        } catch (MongoReplicatorException e) {
+            logger.error("MongoReplication failed", e);
+        }
     }
 
     public static class InMemCheckPointHandler implements ICheckPointHandler {

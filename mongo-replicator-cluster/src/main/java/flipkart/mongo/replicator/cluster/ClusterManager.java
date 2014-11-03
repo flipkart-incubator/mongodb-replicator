@@ -83,7 +83,6 @@ public class ClusterManager implements IDiscoveryCallback {
     @Override
     public void updateReplicaSetConfigs(List<ReplicaSetConfig> updatedRSConfigs) {
 
-        System.out.println("GOT Updated rsConfigs");
         if (DiscoveryUtils.hasReplicaSetsChanged(cluster.getReplicaSets(), updatedRSConfigs)) {
 
             /**
@@ -94,7 +93,6 @@ public class ClusterManager implements IDiscoveryCallback {
             this.stopReplicator();
             this.cluster.setReplicaSets(updatedRSConfigs);
             this.startReplicator();
-            System.out.println("RSConfigs has been updated");
         }
     }
 
