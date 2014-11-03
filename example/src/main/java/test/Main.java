@@ -2,7 +2,7 @@ package test;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
-import flipkart.mongo.replicator.bootstrap.ClusterReplicatorBuilder;
+import flipkart.mongo.replicator.bootstrap.ClusterManagerBuilder;
 import flipkart.mongo.replicator.cluster.ClusterManager;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
@@ -25,7 +25,7 @@ public class Main {
      */
 
     public static void main(String args[]) throws Exception {
-        ClusterManager clusterManager = new ClusterReplicatorBuilder()
+        ClusterManager clusterManager = new ClusterManagerBuilder()
                 .addConfigSvrNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
 //                .addConfigSvrNode(new Node("cart-mongo4.nm.flipkart.com", 27200))
 //                .addConfigSvrNode(new Node("cart-mongo6.nm.flipkart.com", 27200))
@@ -33,6 +33,7 @@ public class Main {
                 .withCheckPoint(new InMemCheckPointHandler())
                 .withOplogFilter(new OplogFilter())
                 .withMongoVersion(new MongoV(2, 6))
+                .setSchedulerConfigs(10, 5)
                 .build();
 
         clusterManager.startReplicator();

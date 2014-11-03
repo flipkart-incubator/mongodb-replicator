@@ -9,6 +9,7 @@ import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 import flipkart.mongo.replicator.core.interfaces.VersionHandler;
 import flipkart.mongo.replicator.core.model.*;
+import flipkart.mongo.replicator.core.model.bootstrapconfigs.SchedulerConfigs;
 import flipkart.mongo.replicator.core.versions.VersionManager;
 
 import java.util.List;
@@ -23,9 +24,12 @@ public class ClusterManager implements IDiscoveryCallback {
 
     private Cluster cluster;
     public final IReplicationHandler replicationHandler;
-    private final ICheckPointHandler checkPointHandler;
     public final VersionHandler versionHandler;
+
+    private final ICheckPointHandler checkPointHandler;
     private final Function<ReplicationEvent, Boolean> oplogFilter;
+    private final SchedulerConfigs schedulerConfigs;
+
     private Optional<ClusterReplicator> clusterReplicator;
     private Optional<ScheduledExecutorService> scheduler;
 
@@ -35,13 +39,15 @@ public class ClusterManager implements IDiscoveryCallback {
     // c) cfgsvc down & reconnnect etc
     // provide hook for the ClusterReplicator to communicate & act for the changes
 
-    public ClusterManager(Cluster cluster, ICheckPointHandler checkPointHandler, IReplicationHandler replicationHandler, MongoV version, Function<ReplicationEvent, Boolean> oplogFilter) {
+    public ClusterManager(Cluster cluster, ICheckPointHandler checkPointHandler, IReplicationHandler replicationHandler,
+                          MongoV version, Function<ReplicationEvent, Boolean> oplogFilter, SchedulerConfigs schedulerConfigs) {
 
         this.cluster = cluster;
         this.checkPointHandler = checkPointHandler;
         this.replicationHandler = replicationHandler;
         this.versionHandler = VersionManager.singleton().getVersionHandler(version);
         this.oplogFilter = oplogFilter;
+        this.schedulerConfigs = schedulerConfigs;
     }
 
     public void startReplicator() {
@@ -93,9 +99,6 @@ public class ClusterManager implements IDiscoveryCallback {
     }
 
     private ScheduledExecutorService attachScheduler() {
-        //TODO: Need to get from config builder
-        long initialDelay = 10;
-        long periodicDelay = 5;
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         ClusterDiscoveryScheduler clusterDiscoveryScheduler = new ClusterDiscoveryScheduler(cluster.cfgsvrs);
@@ -103,7 +106,7 @@ public class ClusterManager implements IDiscoveryCallback {
         clusterDiscoveryScheduler.registerCallback(this);
 
         // starting the scheduler
-        scheduler.scheduleWithFixedDelay(clusterDiscoveryScheduler, initialDelay, periodicDelay, TimeUnit.SECONDS);
+        scheduler.scheduleWithFixedDelay(clusterDiscoveryScheduler, schedulerConfigs.getInitialDelay(), schedulerConfigs.getPeriodicDelay(), TimeUnit.SECONDS);
         return scheduler;
     }
 }
