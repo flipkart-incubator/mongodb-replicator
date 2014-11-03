@@ -7,10 +7,12 @@ public class SchedulerConfigs {
 
     /**
      * schedulerExecutor will wait for below time before first execution is done
+     * TimeUnit is in seconds
      */
     private long initialDelay = 10;
     /**
      * periodic executions will be done after below delay
+     * TimeUnit is in seconds
      */
     private long periodicDelay = 5;
 
