@@ -2,7 +2,6 @@ package flipkart.mongo.replicator.cluster;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.Service;
 import flipkart.mongo.node.discovery.interfaces.IDiscoveryCallback;
 import flipkart.mongo.node.discovery.scheduler.ClusterDiscoveryScheduler;
 import flipkart.mongo.node.discovery.utils.DiscoveryUtils;
@@ -11,11 +10,8 @@ import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 import flipkart.mongo.replicator.core.interfaces.VersionHandler;
 import flipkart.mongo.replicator.core.model.*;
 import flipkart.mongo.replicator.core.versions.VersionManager;
-import flipkart.mongo.replicator.node.ReplicaSetReplicator;
 
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -50,9 +46,8 @@ public class ClusterManager implements IDiscoveryCallback {
 
     public void startReplicator() {
 
-        ClusterReplicator replicator = new ClusterReplicator(this.getReplicaSetReplicators());
-        clusterReplicator = Optional.of(replicator);
-        replicator.doStart();
+        clusterReplicator = Optional.of(new ClusterReplicator(cluster, getTaskContext()));
+        clusterReplicator.get().doStart();
 
         // attaching the scheduler for updating the RSConfigs
         scheduler = Optional.of(this.attachScheduler());
@@ -77,17 +72,6 @@ public class ClusterManager implements IDiscoveryCallback {
         context.setVersionHandler(versionHandler);
 
         return context;
-    }
-
-    private Set<Service> getReplicaSetReplicators() {
-
-        Set<Service> replicaSetReplicators = new LinkedHashSet<Service>();
-        TaskContext taskContext = this.getTaskContext();
-        for (ReplicaSetConfig rsConfig : cluster.getReplicaSets()) {
-            replicaSetReplicators.add(new ReplicaSetReplicator(taskContext, rsConfig));
-        }
-
-        return replicaSetReplicators;
     }
 
     @Override
