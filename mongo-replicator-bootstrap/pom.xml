@@ -3,24 +3,24 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
+        <groupId>flipkart.cp.convert.cart</groupId>
         <artifactId>mongo-replicator</artifactId>
-        <groupId>mongo-replicator</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
+    <version>${flipkart.mongo.replicator.bootstrap.version}</version>
     <artifactId>mongo-replicator-bootstrap</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>mongo-replicator</groupId>
+            <groupId>${flipkart.mongo.replicator.group.id}</groupId>
             <artifactId>mongo-node-discovery</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${flipkart.mongo.replicator.node.discovery.version}</version>
         </dependency>
         <dependency>
-            <groupId>mongo-replicator</groupId>
+            <groupId>${flipkart.mongo.replicator.group.id}</groupId>
             <artifactId>mongo-replicator-cluster</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${flipkart.mongo.replicator.cluster.version}</version>
         </dependency>
     </dependencies>
 

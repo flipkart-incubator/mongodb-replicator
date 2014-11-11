@@ -4,11 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>mongo-replicator</groupId>
+    <groupId>flipkart.cp.convert.cart</groupId>
     <artifactId>mongo-replicator</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
+    <properties>
+        <flipkart.mongo.replicator.node.version>1.0-SNAPSHOT</flipkart.mongo.replicator.node.version>
+        <flipkart.mongo.replicator.core.version>1.0-SNAPSHOT</flipkart.mongo.replicator.core.version>
+        <flipkart.mongo.replicator.cluster.version>1.0-SNAPSHOT</flipkart.mongo.replicator.cluster.version>
+        <flipkart.mongo.replicator.node.discovery.version>1.0-SNAPSHOT</flipkart.mongo.replicator.node.discovery.version>
+        <flipkart.mongo.replicator.bootstrap.version>1.0-SNAPSHOT</flipkart.mongo.replicator.bootstrap.version>
+        <flipkart.mongo.replicator.group.id>flipkart.cp.convert.cart</flipkart.mongo.replicator.group.id>
+    </properties>
     <modules>
         <module>mongo-replicator-node</module>
         <module>example</module>
@@ -29,7 +37,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
+            <version>15.0</version>
         </dependency>
 
     </dependencies>
