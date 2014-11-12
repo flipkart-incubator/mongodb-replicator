@@ -67,6 +67,11 @@ public class Main {
         public BSONTimestamp getCheckPoint(String replicaSetId) {
             return checkpoint.get(replicaSetId);
         }
+
+        @Override
+        public int getCycleTimeinSecs() {
+            return 10;
+        }
     }
 
     public static class Test implements IReplicationHandler {

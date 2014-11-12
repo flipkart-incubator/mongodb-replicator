@@ -30,7 +30,6 @@ public class ReplicationTask implements Runnable {
     @Override
     public void run() {
         String shardId = rsConfig.shardName;
-
         Mongo client;
         try {
             client = rsConfig.getMasterClientURI().connect();
@@ -52,7 +51,6 @@ public class ReplicationTask implements Runnable {
             r = collection.find(new BasicDBObject("ts", new BasicDBObject("$gt", lastCp)));
         }
         DBCursor cursor = r.sort(new BasicDBObject("$natural", 1)).addOption(Bytes.QUERYOPTION_TAILABLE);
-
         while (cursor.hasNext()) {
             DBObject obj = cursor.next();
             ReplicationEvent event = taskContext.getVersionHandler().getReplicationEventAdaptor().convert(obj);
@@ -61,7 +59,12 @@ public class ReplicationTask implements Runnable {
                 taskContext.getReplicationHandler().replicate(event);
             }
 
-            taskContext.getCheckPointHandler().checkPoint(rsConfig.shardName, event.v);
+            if (lastCp == null ||
+                    (event.v.getTime() - lastCp.getTime() >= taskContext.getCheckPointHandler().getCycleTimeinSecs())) {
+
+                taskContext.getCheckPointHandler().checkPoint(rsConfig.shardName, event.v);
+                lastCp = event.v;
+            }
         }
     }
 

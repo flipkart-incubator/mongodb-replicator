@@ -8,6 +8,8 @@ import org.bson.types.BSONTimestamp;
  */
 public interface ICheckPointHandler {
 
+    int getCycleTimeinSecs();
+
     void checkPoint(String replicaSetId, BSONTimestamp timestamp);
 
     ImmutableMap<String, BSONTimestamp> getAllCheckPoints();
