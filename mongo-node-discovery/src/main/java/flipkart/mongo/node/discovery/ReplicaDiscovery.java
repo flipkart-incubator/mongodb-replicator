@@ -97,7 +97,7 @@ public class ReplicaDiscovery {
             String hostPortInfo = data.length > 1 ? data[1] : data[0];
             String[] details = hostPortInfo.split(":");
 
-            String host = details[0] + ".nm.flipkart.com";
+            String host = details[0];
             int port = Integer.parseInt(details[1]);
 
             replicaNodes.add(new Node(host, port));

@@ -73,7 +73,7 @@ public class NodeDiscovery {
 
         String mongoUri = (String) dbObject.get("name");
         String[] hostData = mongoUri.split(":");
-        String host = hostData[0] + ".nm.flipkart.com"; //HACK
+        String host = hostData[0];
         int port = Integer.parseInt(hostData[1]);
         Optional<Node> replicaNode = replicaSetConfig.findNode(host, port);
 

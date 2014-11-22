@@ -47,8 +47,6 @@ public class Main {
 
             ClusterManager clusterManager = new ClusterManagerBuilder()
                     .addConfigSvrNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
-//                .addConfigSvrNode(new Node("cart-mongo4.nm.flipkart.com", 27200))
-//                .addConfigSvrNode(new Node("cart-mongo6.nm.flipkart.com", 27200))
                     .withReplicationHandler(new Test())
                     .withCheckPoint(new InMemCheckPointHandler())
                     .withOplogFilter(new OplogFilter())
