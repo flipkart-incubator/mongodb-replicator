@@ -13,6 +13,7 @@
 
 package flipkart.mongo.replicator.core.interfaces;
 
+import flipkart.mongo.replicator.core.exceptions.MongoReplicatorException;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
 
 /**
@@ -20,6 +21,6 @@ import flipkart.mongo.replicator.core.model.ReplicationEvent;
  */
 public interface IReplicationHandler {
 
-    void replicate(ReplicationEvent replicationEvent);
+    void replicate(ReplicationEvent replicationEvent) throws MongoReplicatorException;
 
 }

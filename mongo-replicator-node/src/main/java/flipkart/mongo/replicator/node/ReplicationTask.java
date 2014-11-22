@@ -14,12 +14,17 @@
 package flipkart.mongo.replicator.node;
 
 import com.mongodb.*;
+import flipkart.mongo.replicator.core.exceptions.DataStoreWriteFailed;
 import flipkart.mongo.replicator.core.exceptions.MongoReplicaSetException;
+import flipkart.mongo.replicator.core.exceptions.MongoReplicatorException;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
 import flipkart.mongo.replicator.core.model.TaskContext;
 import flipkart.mongo.replicator.node.exceptions.ReplicationTaskException;
+import flipkart.mongo.replicator.node.handler.EventReplicaFailureHandler;
 import org.bson.types.BSONTimestamp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.UnknownHostException;
 
@@ -32,12 +37,16 @@ import java.net.UnknownHostException;
  * - Master node
  */
 public class ReplicationTask implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(ReplicationTask.class);
+
     private final TaskContext taskContext;
     private final ReplicaSetConfig rsConfig;
+    private final EventReplicaFailureHandler eventReplicaFailureHandler;
 
     public ReplicationTask(TaskContext taskContext, ReplicaSetConfig rsConfig) {
         this.taskContext = taskContext;
         this.rsConfig = rsConfig;
+        this.eventReplicaFailureHandler = new EventReplicaFailureHandler();
     }
 
     @Override
@@ -67,10 +76,7 @@ public class ReplicationTask implements Runnable {
         while (cursor.hasNext()) {
             DBObject obj = cursor.next();
             ReplicationEvent event = taskContext.getVersionHandler().getReplicationEventAdaptor().convert(obj);
-
-            if (taskContext.getOplogFilter().apply(event)) {
-                taskContext.getReplicationHandler().replicate(event);
-            }
+            replicateEvent(event);
 
             if (lastCp == null ||
                     (event.v.getTime() - lastCp.getTime() >= taskContext.getCheckPointHandler().getCycleTimeinSecs())) {
@@ -78,6 +84,24 @@ public class ReplicationTask implements Runnable {
                 taskContext.getCheckPointHandler().checkPoint(rsConfig.shardName, event.v);
                 lastCp = event.v;
             }
+        }
+    }
+
+    private void replicateEvent(ReplicationEvent event) {
+        if (taskContext.getOplogFilter().apply(event)) {
+            boolean eventReplicated = false;
+            do {
+                try {
+                    taskContext.getReplicationHandler().replicate(event);
+                    eventReplicated = true;
+                } catch (DataStoreWriteFailed e) {
+                    logger.error("ReplicatorHandler failed.", e);
+                    this.eventReplicaFailureHandler.handleFailure(event);
+                } catch (MongoReplicatorException e) {
+                    logger.error("ReplicatorHandler failed.", e);
+                    this.eventReplicaFailureHandler.handleFailure(event);
+                }
+            } while (!eventReplicated);
         }
     }
 

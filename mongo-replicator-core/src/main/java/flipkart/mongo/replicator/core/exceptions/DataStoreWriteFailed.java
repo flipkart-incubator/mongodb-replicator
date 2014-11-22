@@ -14,24 +14,11 @@
 package flipkart.mongo.replicator.core.exceptions;
 
 /**
- * Created by kishan.gajjar on 03/11/14.
+ * Created by kishan.gajjar on 23/11/14.
  */
-public enum ReplicatorErrorCode {
+public class DataStoreWriteFailed extends MongoReplicatorException {
 
-    UNKNOWN("Some unknown error"),
-    NODE_MONGO_CLIENT_FAILURE("MongoClient for NodeDiscovery is not initiated. Aborting the node discovery"),
-    REPLICA_SET_MONGO_CLIENT_FAILURE("MongoClient is not initiated. Aborting the replicaSet discovery"),
-    MASTER_NODE_NOT_FOUND("MasterNode not found in the replicaSet"),
-    EVENT_REPLICATION_FAILED("Event replication failed");
-
-    protected final String errorMessage;
-
-    ReplicatorErrorCode(String errorMessage) {
-        this.errorMessage = errorMessage;
+    public DataStoreWriteFailed(ReplicatorErrorCode errorCode) {
+        super(errorCode);
     }
-
-    public String getMessage() {
-        return errorMessage;
-    }
-
 }

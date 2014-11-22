@@ -33,4 +33,15 @@ public class ReplicationEvent {
         this.namespace = namespace;
         this.eventData = eventData;
     }
+
+    @Override
+    public String toString() {
+        return "ReplicationEvent{" +
+                "eventData=" + eventData +
+                ", namespace='" + namespace + '\'' +
+                ", h=" + h +
+                ", v=" + v +
+                ", operation='" + operation + '\'' +
+                '}';
+    }
 }
