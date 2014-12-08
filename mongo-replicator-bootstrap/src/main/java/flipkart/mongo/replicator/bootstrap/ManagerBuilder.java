@@ -53,6 +53,11 @@ public class ManagerBuilder {
         return this;
     }
 
+    public ManagerBuilder withMongoNodes(ArrayList<Node> mongoNodes) {
+        this.mongoNodes = mongoNodes;
+        return this;
+    }
+
     public ManagerBuilder withReplicationHandler(IReplicationHandler replicationHandler) {
         this.replicationHandler = replicationHandler;
         return this;
