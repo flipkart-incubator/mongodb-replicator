@@ -30,6 +30,11 @@
             <artifactId>mongo-replicator-core</artifactId>
             <version>${flipkart.mongo.replicator.core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${flipkart.mongo.replicator.group.id}</groupId>
+            <artifactId>mongo-node-discovery</artifactId>
+            <version>${flipkart.mongo.replicator.node.discovery.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

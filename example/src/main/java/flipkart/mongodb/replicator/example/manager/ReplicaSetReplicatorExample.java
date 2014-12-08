@@ -13,7 +13,7 @@
 
 package flipkart.mongodb.replicator.example.manager;
 
-import flipkart.mongo.replicator.bootstrap.ReplicaSetManagerBuilder;
+import flipkart.mongo.replicator.bootstrap.ManagerBuilder;
 import flipkart.mongo.replicator.core.exceptions.MongoReplicatorException;
 import flipkart.mongo.replicator.core.model.MongoV;
 import flipkart.mongo.replicator.core.model.Node;
@@ -30,13 +30,13 @@ public class ReplicaSetReplicatorExample {
     public static void main(String args[]) {
 
         try {
-            ReplicaSetManager replicaSetExample = new ReplicaSetManagerBuilder()
+            ReplicaSetManager replicaSetExample = new ManagerBuilder()
                     .addMongoNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
                     .withCheckPoint(new CheckPointExampleHandler())
                     .withReplicationHandler(new ReplicationHandlerExample())
                     .withOplogFilter(new OplogExampleFilter())
                     .withMongoVersion(new MongoV(2, 6))
-                    .build();
+                    .buildReplicaSetManager();
 
             replicaSetExample.startReplicator();
         } catch (MongoReplicatorException e) {

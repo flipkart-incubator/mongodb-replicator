@@ -13,7 +13,7 @@
 
 package flipkart.mongodb.replicator.example.manager;
 
-import flipkart.mongo.replicator.bootstrap.ClusterManagerBuilder;
+import flipkart.mongo.replicator.bootstrap.ManagerBuilder;
 import flipkart.mongo.replicator.cluster.ClusterManager;
 import flipkart.mongo.replicator.core.exceptions.MongoReplicatorException;
 import flipkart.mongo.replicator.core.model.MongoV;
@@ -33,14 +33,14 @@ public class ClusterReplicatorExample {
     public static void main(String args[]) {
 
         try {
-            ClusterManager clusterManager = new ClusterManagerBuilder()
-                    .addConfigSvrNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
+            ClusterManager clusterManager = new ManagerBuilder()
+                    .addMongoNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
                     .withReplicationHandler(new ReplicationHandlerExample())
                     .withCheckPoint(new CheckPointExampleHandler())
                     .withOplogFilter(new OplogExampleFilter())
                     .withMongoVersion(new MongoV(2, 6))
                     .setSchedulerConfigs(10, 5)
-                    .build();
+                    .buildClusterManager();
 
             clusterManager.startReplicator();
         } catch (MongoReplicatorException e) {

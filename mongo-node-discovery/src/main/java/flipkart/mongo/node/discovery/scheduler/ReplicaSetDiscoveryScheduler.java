@@ -13,37 +13,34 @@
 
 package flipkart.mongo.node.discovery.scheduler;
 
-import flipkart.mongo.node.discovery.ReplicaDiscovery;
+import com.google.common.collect.Lists;
+import flipkart.mongo.node.discovery.NodeDiscovery;
 import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
-import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 /**
- * Created by kishan.gajjar on 31/10/14.
+ * Created by kishan.gajjar on 08/12/14.
  */
-public class ClusterDiscoveryScheduler extends DiscoveryScheduler implements Runnable {
+public class ReplicaSetDiscoveryScheduler extends DiscoveryScheduler implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(ReplicaSetDiscoveryScheduler.class);
 
-    private static final Logger logger = LoggerFactory.getLogger(ClusterDiscoveryScheduler.class);
+    private ReplicaSetConfig replicaSetConfig;
 
-    private List<Node> configSvrNodes;
-    public ClusterDiscoveryScheduler(List<Node> configSvrNodes) {
-        this.configSvrNodes = configSvrNodes;
+    public ReplicaSetDiscoveryScheduler(ReplicaSetConfig replicaSetConfig) {
+        this.replicaSetConfig = replicaSetConfig;
     }
 
     @Override
     public void run() {
-        ReplicaDiscovery replicaDiscovery = new ReplicaDiscovery(configSvrNodes);
-
         try {
-            List<ReplicaSetConfig> replicaSetConfigs = replicaDiscovery.discover();
-            //notifying the callbacks with the updated replicaConfigs
-            publish(replicaSetConfigs);
+            NodeDiscovery nodeDiscovery = new NodeDiscovery(this.replicaSetConfig);
+            ReplicaSetConfig replicaSetConfig = nodeDiscovery.discover();
+            //notifying the callbacks with the updated replicaConfig
+            publish(Lists.newArrayList(replicaSetConfig));
         } catch (MongoDiscoveryException e) {
-            logger.error("Unable to get updated replicaSet configs");
+            logger.error("Unable to get updated replicaSet configs from NodeDiscovery");
         }
     }
 }

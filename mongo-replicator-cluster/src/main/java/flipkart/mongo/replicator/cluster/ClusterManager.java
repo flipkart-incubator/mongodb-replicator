@@ -39,8 +39,6 @@ import java.util.concurrent.TimeUnit;
 public class ClusterManager extends ReplicatorManager implements IDiscoveryCallback {
 
     private Cluster cluster;
-    private final SchedulerConfigs schedulerConfigs;
-
     private Optional<ClusterReplicator> clusterReplicator;
     private Optional<ScheduledExecutorService> scheduler;
 
@@ -52,10 +50,9 @@ public class ClusterManager extends ReplicatorManager implements IDiscoveryCallb
 
     public ClusterManager(Cluster cluster, ICheckPointHandler checkPointHandler, IReplicationHandler replicationHandler,
                           MongoV version, Function<ReplicationEvent, Boolean> oplogFilter, SchedulerConfigs schedulerConfigs) {
-        super(replicationHandler, VersionManager.singleton().getVersionHandler(version), checkPointHandler, oplogFilter);
+        super(replicationHandler, VersionManager.singleton().getVersionHandler(version), checkPointHandler, oplogFilter, schedulerConfigs);
 
         this.cluster = cluster;
-        this.schedulerConfigs = schedulerConfigs;
     }
 
     @Override

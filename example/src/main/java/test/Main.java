@@ -15,7 +15,7 @@ package test;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
-import flipkart.mongo.replicator.bootstrap.ClusterManagerBuilder;
+import flipkart.mongo.replicator.bootstrap.ManagerBuilder;
 import flipkart.mongo.replicator.cluster.ClusterManager;
 import flipkart.mongo.replicator.core.exceptions.MongoReplicatorException;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
@@ -45,14 +45,14 @@ public class Main {
 
         try {
 
-            ClusterManager clusterManager = new ClusterManagerBuilder()
-                    .addConfigSvrNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
+            ClusterManager clusterManager = new ManagerBuilder()
+                    .addMongoNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
                     .withReplicationHandler(new Test())
                     .withCheckPoint(new InMemCheckPointHandler())
                     .withOplogFilter(new OplogFilter())
                     .withMongoVersion(new MongoV(2, 6))
                     .setSchedulerConfigs(10, 5)
-                    .build();
+                    .buildClusterManager();
 
             clusterManager.startReplicator();
         } catch (MongoReplicatorException e) {
@@ -89,7 +89,7 @@ public class Main {
 
         @Override
         public void replicate(ReplicationEvent event) {
-            System.out.println("op:" + event.operation + ",ns:" + event.namespace + ",ts:" + event.v );
+            System.out.println("op:" + event.operation + ",ns:" + event.namespace + ",ts:" + event.v);
         }
     }
 

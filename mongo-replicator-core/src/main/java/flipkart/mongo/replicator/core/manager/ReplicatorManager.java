@@ -19,6 +19,7 @@ import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 import flipkart.mongo.replicator.core.interfaces.VersionHandler;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
 import flipkart.mongo.replicator.core.model.TaskContext;
+import flipkart.mongo.replicator.core.model.bootstrapconfigs.SchedulerConfigs;
 
 /**
  * Created by kishan.gajjar on 03/12/14.
@@ -29,14 +30,16 @@ public abstract class ReplicatorManager {
     protected final VersionHandler versionHandler;
     protected final ICheckPointHandler checkPointHandler;
     protected final Function<ReplicationEvent, Boolean> oplogFilter;
+    protected final SchedulerConfigs schedulerConfigs;
 
-    public ReplicatorManager(IReplicationHandler replicationHandler, VersionHandler versionHandler,
-                             ICheckPointHandler checkPointHandler, Function<ReplicationEvent, Boolean> oplogFilter) {
+    public ReplicatorManager(IReplicationHandler replicationHandler, VersionHandler versionHandler, ICheckPointHandler checkPointHandler,
+                             Function<ReplicationEvent, Boolean> oplogFilter, SchedulerConfigs schedulerConfigs) {
 
         this.replicationHandler = replicationHandler;
         this.versionHandler = versionHandler;
         this.checkPointHandler = checkPointHandler;
         this.oplogFilter = oplogFilter;
+        this.schedulerConfigs = schedulerConfigs;
     }
 
     protected TaskContext getTaskContext() {
