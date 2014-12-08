@@ -44,17 +44,18 @@ public class ReplicaDiscovery {
 
     public List<ReplicaSetConfig> discover() throws MongoDiscoveryException {
 
-        List<ReplicaSetConfig> replicaSetConfigs = this.constructReplicaSets();
+        List<ReplicaSetConfig> replicaSetConfigs = Lists.newArrayList();
 
-        for (ReplicaSetConfig replicaSetConfig : replicaSetConfigs) {
-            NodeDiscovery nodeDiscovery = new NodeDiscovery(replicaSetConfig);
-            nodeDiscovery.discover();
+        for (ReplicaSetConfig mongoSReplicaSet : this.getMongoSReplicaSets()) {
+            NodeDiscovery nodeDiscovery = new NodeDiscovery(mongoSReplicaSet);
+            ReplicaSetConfig replicaSetBasedOnDiscovery = nodeDiscovery.discover();
+            replicaSetConfigs.add(replicaSetBasedOnDiscovery);
         }
 
         return replicaSetConfigs;
     }
 
-    private List<ReplicaSetConfig> constructReplicaSets() throws MongoDiscoveryException {
+    private List<ReplicaSetConfig> getMongoSReplicaSets() throws MongoDiscoveryException {
 
         List<ReplicaSetConfig> replicaSetConfigs = Lists.newArrayList();
         Mongo client = null;

@@ -14,6 +14,8 @@
 package flipkart.mongo.node.discovery;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
@@ -36,20 +38,21 @@ import java.util.List;
 public class NodeDiscovery {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeDiscovery.class);
-    private ReplicaSetConfig replicaSetConfig;
+    private ReplicaSetConfig mongoReplicaSet;
     private static final String DB_FOR_DISCOVERY = "admin";
 
     public NodeDiscovery(ReplicaSetConfig replicaSetConfig) {
-        this.replicaSetConfig = replicaSetConfig;
+        this.mongoReplicaSet = replicaSetConfig;
     }
 
     /**
      * will connect to one of the shard in replica set and update and nodes in the replicaSet
      */
-    public void discover() throws MongoDiscoveryException {
+    public ReplicaSetConfig discover() throws MongoDiscoveryException {
 
+        List<Node> nodesInReplicaSet = Lists.newArrayList();
         Mongo client = null;
-        for (Node replicaNode : replicaSetConfig.getNodes()) {
+        for (Node replicaNode : mongoReplicaSet.getNodes()) {
             try {
                 client = MongoConnector.getMongoClient(replicaNode.getMongoURI());
                 break;
@@ -64,12 +67,26 @@ public class NodeDiscovery {
         DB dbConnection = client.getDB(DB_FOR_DISCOVERY);
         CommandResult replSetGetStatus = dbConnection.command("replSetGetStatus");
         List<DBObject> dbDataList = (ArrayList<DBObject>) replSetGetStatus.get("members");
+
         for (DBObject dbObject : dbDataList) {
-            updateReplicaNodeStatus(dbObject, replicaSetConfig);
+            Node replicaNodeWithState = getReplicaNodeWithState(dbObject, mongoReplicaSet);
+            nodesInReplicaSet.add(replicaNodeWithState);
         }
+
+        return new ReplicaSetConfig(getShardName(replSetGetStatus), nodesInReplicaSet);
     }
 
-    private void updateReplicaNodeStatus(DBObject dbObject, ReplicaSetConfig replicaSetConfig) {
+    private String getShardName(CommandResult replSetGetStatus) {
+
+        String shardName = (String) replSetGetStatus.get("set");
+        if (Strings.isNullOrEmpty(shardName)) {
+            shardName = mongoReplicaSet.shardName;
+        }
+
+        return shardName;
+    }
+
+    private Node getReplicaNodeWithState(DBObject dbObject, ReplicaSetConfig replicaSetConfig) {
 
         String mongoUri = (String) dbObject.get("name");
         String[] hostData = mongoUri.split(":");
@@ -79,12 +96,14 @@ public class NodeDiscovery {
 
         if (!replicaNode.isPresent()) {
             logger.error(String.format("ReplicaNode (%s, %s) is not present in replicaSet: %s", host, port, replicaSetConfig));
-            return;
+            replicaNode = Optional.of(new Node(host, port));
         }
 
         String nodeState = (String) dbObject.get("stateStr");
         if (NodeState.DB_STATE_MAP.containsKey(nodeState)) {
             replicaNode.get().setState(NodeState.DB_STATE_MAP.get(nodeState));
         }
+
+        return replicaNode.get();
     }
 }

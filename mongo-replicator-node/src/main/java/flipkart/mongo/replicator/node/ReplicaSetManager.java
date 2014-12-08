@@ -13,30 +13,41 @@
 
 package flipkart.mongo.replicator.node;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
+import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
+import flipkart.mongo.replicator.core.manager.ReplicatorManager;
+import flipkart.mongo.replicator.core.model.MongoV;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
+import flipkart.mongo.replicator.core.model.ReplicationEvent;
+import flipkart.mongo.replicator.core.versions.VersionManager;
 
 /**
  * Created by pradeep on 09/10/14.
  */
-public class ReplicaSetManager {
+public class ReplicaSetManager extends ReplicatorManager {
 
     private final ReplicaSetConfig rsConfig;
-    private final ICheckPointHandler checkPointHandler;
+    private Optional<ReplicaSetReplicator> replicaSetReplicator;
 
-    public ReplicaSetManager(ReplicaSetConfig rsConfig, ICheckPointHandler checkPointHandler) {
+    public ReplicaSetManager(ReplicaSetConfig rsConfig, ICheckPointHandler checkPointHandler, IReplicationHandler replicationHandler,
+                             MongoV version, Function<ReplicationEvent, Boolean> oplogFilter) {
+
+        super(replicationHandler, VersionManager.singleton().getVersionHandler(version), checkPointHandler, oplogFilter);
+
         this.rsConfig = rsConfig;
-        this.checkPointHandler = checkPointHandler;
     }
 
-    public ReplicaSetConfig getRsConfig() {
-        return rsConfig;
+    @Override
+    public void startReplicator() {
+        replicaSetReplicator = Optional.of(new ReplicaSetReplicator(getTaskContext(), rsConfig));
+        replicaSetReplicator.get().doStart();
     }
 
-    public ICheckPointHandler getCheckPointHandler() {
-        return checkPointHandler;
+    @Override
+    public void stopReplicator() {
+        if (replicaSetReplicator.isPresent())
+            replicaSetReplicator.get().doStop();
     }
-
-    // Figure out master changes & provide hook for the ReplicaSetReplicator to communicate & act for the changes
-
 }

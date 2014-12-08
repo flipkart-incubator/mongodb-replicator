@@ -20,8 +20,11 @@ import flipkart.mongo.node.discovery.scheduler.ClusterDiscoveryScheduler;
 import flipkart.mongo.node.discovery.utils.DiscoveryUtils;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
-import flipkart.mongo.replicator.core.interfaces.VersionHandler;
-import flipkart.mongo.replicator.core.model.*;
+import flipkart.mongo.replicator.core.manager.ReplicatorManager;
+import flipkart.mongo.replicator.core.model.Cluster;
+import flipkart.mongo.replicator.core.model.MongoV;
+import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
+import flipkart.mongo.replicator.core.model.ReplicationEvent;
 import flipkart.mongo.replicator.core.model.bootstrapconfigs.SchedulerConfigs;
 import flipkart.mongo.replicator.core.versions.VersionManager;
 
@@ -33,14 +36,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by pradeep on 29/10/14.
  */
-public class ClusterManager implements IDiscoveryCallback {
+public class ClusterManager extends ReplicatorManager implements IDiscoveryCallback {
 
     private Cluster cluster;
-    public final IReplicationHandler replicationHandler;
-    public final VersionHandler versionHandler;
-
-    private final ICheckPointHandler checkPointHandler;
-    private final Function<ReplicationEvent, Boolean> oplogFilter;
     private final SchedulerConfigs schedulerConfigs;
 
     private Optional<ClusterReplicator> clusterReplicator;
@@ -54,15 +52,13 @@ public class ClusterManager implements IDiscoveryCallback {
 
     public ClusterManager(Cluster cluster, ICheckPointHandler checkPointHandler, IReplicationHandler replicationHandler,
                           MongoV version, Function<ReplicationEvent, Boolean> oplogFilter, SchedulerConfigs schedulerConfigs) {
+        super(replicationHandler, VersionManager.singleton().getVersionHandler(version), checkPointHandler, oplogFilter);
 
         this.cluster = cluster;
-        this.checkPointHandler = checkPointHandler;
-        this.replicationHandler = replicationHandler;
-        this.versionHandler = VersionManager.singleton().getVersionHandler(version);
-        this.oplogFilter = oplogFilter;
         this.schedulerConfigs = schedulerConfigs;
     }
 
+    @Override
     public void startReplicator() {
 
         clusterReplicator = Optional.of(new ClusterReplicator(cluster, getTaskContext()));
@@ -72,6 +68,7 @@ public class ClusterManager implements IDiscoveryCallback {
         scheduler = Optional.of(this.attachScheduler());
     }
 
+    @Override
     public void stopReplicator() {
 
         // stopping clusterReplicator
@@ -80,17 +77,6 @@ public class ClusterManager implements IDiscoveryCallback {
         // stopping the scheduler
         if (scheduler.isPresent())
             scheduler.get().shutdown();
-    }
-
-    private TaskContext getTaskContext() {
-
-        TaskContext context = new TaskContext();
-        context.setCheckPointHandler(checkPointHandler);
-        context.setOplogFilter(oplogFilter);
-        context.setReplicationHandler(replicationHandler);
-        context.setVersionHandler(versionHandler);
-
-        return context;
     }
 
     @Override
