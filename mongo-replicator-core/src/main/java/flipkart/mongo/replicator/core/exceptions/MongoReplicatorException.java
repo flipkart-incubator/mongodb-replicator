@@ -18,11 +18,19 @@ package flipkart.mongo.replicator.core.exceptions;
  */
 public abstract class MongoReplicatorException extends Exception {
 
+    protected ReplicatorErrorCode errorCode;
+
     public MongoReplicatorException(ReplicatorErrorCode errorCode) {
         super(errorCode.getMessage());
+        this.errorCode = errorCode;
     }
 
     public MongoReplicatorException(ReplicatorErrorCode errorCode, Throwable cause) {
         super(errorCode.getMessage(), cause);
+        this.errorCode = errorCode;
+    }
+
+    public ReplicatorErrorCode getErrorCode() {
+        return errorCode;
     }
 }
