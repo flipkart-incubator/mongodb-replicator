@@ -13,6 +13,7 @@
 
 package flipkart.mongo.node.discovery.scheduler;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import flipkart.mongo.node.discovery.interfaces.IDiscoveryCallback;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
@@ -25,7 +26,7 @@ import java.util.List;
 public abstract class DiscoveryScheduler {
     private List<IDiscoveryCallback> discoveryCallbacks = Lists.newArrayList();
 
-    protected void publish(List<ReplicaSetConfig> replicaSetConfigs) {
+    protected void publish(ImmutableList<ReplicaSetConfig> replicaSetConfigs) {
         for (IDiscoveryCallback discoveryCallback : this.discoveryCallbacks) {
             discoveryCallback.updateReplicaSetConfigs(replicaSetConfigs);
         }

@@ -15,6 +15,7 @@ package flipkart.mongo.replicator.cluster;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import flipkart.mongo.node.discovery.interfaces.IDiscoveryCallback;
 import flipkart.mongo.node.discovery.scheduler.ClusterDiscoveryScheduler;
 import flipkart.mongo.node.discovery.utils.DiscoveryUtils;
@@ -77,7 +78,7 @@ public class ClusterManager extends ReplicatorManager implements IDiscoveryCallb
     }
 
     @Override
-    public void updateReplicaSetConfigs(List<ReplicaSetConfig> updatedRSConfigs) {
+    public void updateReplicaSetConfigs(ImmutableList<ReplicaSetConfig> updatedRSConfigs) {
 
         if (DiscoveryUtils.hasReplicaSetsChanged(cluster.getReplicaSets(), updatedRSConfigs)) {
 

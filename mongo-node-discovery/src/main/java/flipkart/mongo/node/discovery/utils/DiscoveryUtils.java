@@ -32,7 +32,7 @@ public class DiscoveryUtils {
      * @param updatedReplicaSets
      * @return
      */
-    public static boolean hasReplicaSetsChanged(ImmutableList<ReplicaSetConfig> currentReplicaSets, List<ReplicaSetConfig> updatedReplicaSets) {
+    public static boolean hasReplicaSetsChanged(ImmutableList<ReplicaSetConfig> currentReplicaSets, ImmutableList<ReplicaSetConfig> updatedReplicaSets) {
 
         Map<Integer, ReplicaSetConfig> currentRSConfigMap = DiscoveryUtils.getHashForReplicaSets(currentReplicaSets);
         Map<Integer, ReplicaSetConfig> updatedRSConfigMap = DiscoveryUtils.getHashForReplicaSets(updatedReplicaSets);

@@ -14,6 +14,7 @@
 package flipkart.mongo.replicator.bootstrap;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import flipkart.mongo.node.discovery.NodeDiscovery;
 import flipkart.mongo.node.discovery.ReplicaDiscovery;
@@ -96,7 +97,7 @@ public class ManagerBuilder {
     public ClusterManager buildClusterManager() throws MongoReplicatorException {
 
         ReplicaDiscovery replicaDiscover = new ReplicaDiscovery(mongoNodes);
-        List<ReplicaSetConfig> replicaSetConfigs = replicaDiscover.discover();
+        ImmutableList<ReplicaSetConfig> replicaSetConfigs = replicaDiscover.discover();
         Cluster cluster = new Cluster(replicaSetConfigs, mongoNodes);
 
         return new ClusterManager(cluster, checkPointHandler, replicationHandler, version, filter, schedulerConfigs);

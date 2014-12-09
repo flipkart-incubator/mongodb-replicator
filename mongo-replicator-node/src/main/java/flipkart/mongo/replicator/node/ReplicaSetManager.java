@@ -69,7 +69,7 @@ public class ReplicaSetManager extends ReplicatorManager implements IDiscoveryCa
     }
 
     @Override
-    public void updateReplicaSetConfigs(List<ReplicaSetConfig> updatedRSConfigs) {
+    public void updateReplicaSetConfigs(ImmutableList<ReplicaSetConfig> updatedRSConfigs) {
 
         if (DiscoveryUtils.hasReplicaSetsChanged(ImmutableList.of(this.replicaSetConfig), updatedRSConfigs)) {
 

@@ -13,7 +13,7 @@
 
 package flipkart.mongo.node.discovery.scheduler;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import flipkart.mongo.node.discovery.NodeDiscovery;
 import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
@@ -38,7 +38,7 @@ public class ReplicaSetDiscoveryScheduler extends DiscoveryScheduler implements 
             NodeDiscovery nodeDiscovery = new NodeDiscovery(this.replicaSetConfig);
             ReplicaSetConfig replicaSetConfig = nodeDiscovery.discover();
             //notifying the callbacks with the updated replicaConfig
-            publish(Lists.newArrayList(replicaSetConfig));
+            publish(ImmutableList.of(replicaSetConfig));
         } catch (MongoDiscoveryException e) {
             logger.error("Unable to get updated replicaSet configs from NodeDiscovery");
         }

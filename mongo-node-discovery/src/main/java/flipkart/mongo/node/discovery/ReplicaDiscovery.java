@@ -13,6 +13,7 @@
 
 package flipkart.mongo.node.discovery;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -42,7 +43,7 @@ public class ReplicaDiscovery {
         this.configSvrNodes = configSvrNodes;
     }
 
-    public List<ReplicaSetConfig> discover() throws MongoDiscoveryException {
+    public ImmutableList<ReplicaSetConfig> discover() throws MongoDiscoveryException {
 
         List<ReplicaSetConfig> replicaSetConfigs = Lists.newArrayList();
 
@@ -52,7 +53,7 @@ public class ReplicaDiscovery {
             replicaSetConfigs.add(replicaSetBasedOnDiscovery);
         }
 
-        return replicaSetConfigs;
+        return ImmutableList.copyOf(replicaSetConfigs);
     }
 
     private List<ReplicaSetConfig> getMongoSReplicaSets() throws MongoDiscoveryException {

@@ -13,6 +13,7 @@
 
 package flipkart.mongo.node.discovery.scheduler;
 
+import com.google.common.collect.ImmutableList;
 import flipkart.mongo.node.discovery.ReplicaDiscovery;
 import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
 import flipkart.mongo.replicator.core.model.Node;
@@ -39,7 +40,7 @@ public class ClusterDiscoveryScheduler extends DiscoveryScheduler implements Run
         ReplicaDiscovery replicaDiscovery = new ReplicaDiscovery(configSvrNodes);
 
         try {
-            List<ReplicaSetConfig> replicaSetConfigs = replicaDiscovery.discover();
+            ImmutableList<ReplicaSetConfig> replicaSetConfigs = replicaDiscovery.discover();
             //notifying the callbacks with the updated replicaConfigs
             publish(replicaSetConfigs);
         } catch (MongoDiscoveryException e) {

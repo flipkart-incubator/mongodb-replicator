@@ -13,6 +13,7 @@
 
 package flipkart.mongo.node.discovery.interfaces;
 
+import com.google.common.collect.ImmutableList;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 
 import java.util.List;
@@ -22,5 +23,5 @@ import java.util.List;
  */
 public interface IDiscoveryCallback {
 
-    public void updateReplicaSetConfigs(List<ReplicaSetConfig> updatedRSConfigs);
+    public void updateReplicaSetConfigs(ImmutableList<ReplicaSetConfig> updatedRSConfigs);
 }
