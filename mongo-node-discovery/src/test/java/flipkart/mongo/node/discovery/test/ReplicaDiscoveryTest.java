@@ -15,9 +15,12 @@ package flipkart.mongo.node.discovery.test;
 
 import com.google.common.collect.ImmutableList;
 import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import flipkart.mongo.node.discovery.ReplicaDiscovery;
 import flipkart.mongo.node.discovery.exceptions.ConnectionException;
 import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
+import flipkart.mongo.node.discovery.test.mock.MockClusterModel;
+import flipkart.mongo.node.discovery.test.mock.MockDBObjects;
 import flipkart.mongo.node.discovery.test.mock.MockReplicaSetModel;
 import flipkart.mongo.replicator.core.exceptions.ReplicatorErrorCode;
 import flipkart.mongo.replicator.core.model.Node;
@@ -53,9 +56,10 @@ public class ReplicaDiscoveryTest extends BaseDiscoveryTest {
 
     public void testDiscover() throws Exception {
 
+        MockReplicaSetModel.mockWithEmptyHostState(mockDBCollection);
         ReplicaDiscovery replicaDiscovery = new ReplicaDiscovery(mongoNodes);
         ImmutableList<ReplicaSetConfig> replicaSetConfigs = replicaDiscovery.discover();
-        Assert.assertTrue("ReplicaSet size", replicaSetConfigs.size() == MockReplicaSetModel.MOCK_MONGO_NODES.size());
+        Assert.assertTrue("ReplicaSet size", replicaSetConfigs.size() == MockReplicaSetModel.MOCK_MONGO_NODES.size() - 1);
     }
 
     public void testNullClient() {

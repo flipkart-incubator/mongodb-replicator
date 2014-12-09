@@ -14,6 +14,7 @@ package flipkart.mongo.node.discovery.test;/*
 import flipkart.mongo.node.discovery.NodeDiscovery;
 import flipkart.mongo.node.discovery.exceptions.ConnectionException;
 import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
+import flipkart.mongo.node.discovery.test.mock.MockClusterModel;
 import flipkart.mongo.node.discovery.test.mock.MockReplicaSetModel;
 import flipkart.mongo.replicator.core.exceptions.ReplicatorErrorCode;
 import flipkart.mongo.replicator.core.model.Node;
@@ -50,6 +51,38 @@ public class NodeDiscoveryTest extends BaseDiscoveryTest {
         for (Node replicaNode : discoverReplicaSet.getNodes()) {
             if (replicaNode.host.equals(MockReplicaSetModel.PRIMARY_NODE_HOST)) {
                 Assert.assertTrue("Primary replicaNode", replicaNode.getState().equals(NodeState.PRIMARY));
+            } else {
+                Assert.assertTrue("Secondary replicaNode", replicaNode.getState().equals(NodeState.SECONDARY));
+            }
+        }
+    }
+
+    public void testWithShardName() throws Exception {
+
+        MockClusterModel.withShardName(mockCommandResult);
+
+        NodeDiscovery nodeDiscovery = new NodeDiscovery(replicaSetConfig);
+        ReplicaSetConfig discoverReplicaSet = nodeDiscovery.discover();
+        Assert.assertTrue("ReplicaSet node size", discoverReplicaSet.getNodes().size() == MockReplicaSetModel.MOCK_MONGO_NODES.size());
+        for (Node replicaNode : discoverReplicaSet.getNodes()) {
+            if (replicaNode.host.equals(MockReplicaSetModel.PRIMARY_NODE_HOST)) {
+                Assert.assertTrue("Primary replicaNode", replicaNode.getState().equals(NodeState.PRIMARY));
+            } else {
+                Assert.assertTrue("Secondary replicaNode", replicaNode.getState().equals(NodeState.SECONDARY));
+            }
+        }
+    }
+
+    public void testInvalidState() throws Exception {
+
+        MockClusterModel.mockForUnknownState(mockCommandResult);
+
+        NodeDiscovery nodeDiscovery = new NodeDiscovery(replicaSetConfig);
+        ReplicaSetConfig discoverReplicaSet = nodeDiscovery.discover();
+        Assert.assertTrue("ReplicaSet node size", discoverReplicaSet.getNodes().size() == MockReplicaSetModel.MOCK_MONGO_NODES.size());
+        for (Node replicaNode : discoverReplicaSet.getNodes()) {
+            if (replicaNode.host.equals(MockReplicaSetModel.PRIMARY_NODE_HOST)) {
+                Assert.assertTrue("Primary replicaNode", replicaNode.getState().equals(NodeState.UNKNOWN));
             } else {
                 Assert.assertTrue("Secondary replicaNode", replicaNode.getState().equals(NodeState.SECONDARY));
             }

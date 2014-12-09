@@ -99,6 +99,9 @@ public class ReplicaDiscovery {
             String hostPortInfo = data.length > 1 ? data[1] : data[0];
             String[] details = hostPortInfo.split(":");
 
+            if (details.length < 2)
+                continue;
+
             String host = details[0];
             int port = Integer.parseInt(details[1]);
 

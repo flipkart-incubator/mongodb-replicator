@@ -13,10 +13,7 @@
 
 package flipkart.mongo.node.discovery.test.mock;
 
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.*;
 import org.mockito.Matchers;
 
 import java.util.List;
@@ -38,9 +35,17 @@ public class MockClusterModel {
 
     public static DBCursor mockDBCursor(DBCollection dbCollection) {
 
-        DBCursor dbCursor = new DBCursorIterator(MockReplicaSetModel.mockDBObject());
+        DBCursor dbCursor = new DBCursorIterator(new MockDBObjects().mock());
         when(dbCollection.find()).thenReturn(dbCursor);
         return dbCursor;
+    }
+
+    public static void mockForUnknownState(CommandResult commandResult) {
+       when(commandResult.get("members")).thenReturn(new MockDBObjects().withPrimaryState("UNKNOWN").mock());
+    }
+
+    public static void withShardName(CommandResult commandResult) {
+        when(commandResult.get("set")).thenReturn(MockReplicaSetModel.MOCK_SHARD_NAME);
     }
 
     public static class DBCursorIterator extends DBCursor {

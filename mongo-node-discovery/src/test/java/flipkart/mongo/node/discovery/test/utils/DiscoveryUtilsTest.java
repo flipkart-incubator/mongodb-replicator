@@ -27,6 +27,7 @@ public class DiscoveryUtilsTest extends BaseDiscoveryTest {
 
     public void testSameReplicaSetsChanged() throws Exception {
 
+        DiscoveryUtils discoveryUtils = new DiscoveryUtils();
         ImmutableList<ReplicaSetConfig> replicaSetConfigsX = ImmutableList.copyOf(MockReplicaSetModel.mockReplicaSetConfigs(3, 3));
         ImmutableList<ReplicaSetConfig> replicaSetConfigsY = ImmutableList.copyOf(MockReplicaSetModel.mockReplicaSetConfigs(3, 3));
 

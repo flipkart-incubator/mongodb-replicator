@@ -24,8 +24,4 @@ public class MongoDiscoveryException extends MongoReplicatorException {
     public MongoDiscoveryException(ReplicatorErrorCode errorCode) {
         super(errorCode);
     }
-
-    public MongoDiscoveryException(ReplicatorErrorCode errorCode, Throwable cause) {
-        super(errorCode, cause);
-    }
 }

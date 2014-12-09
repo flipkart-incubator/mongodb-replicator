@@ -14,7 +14,6 @@
 package flipkart.mongo.node.discovery.test.mock;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.mongodb.*;
 import flipkart.mongo.node.discovery.MongoConnector;
 import flipkart.mongo.replicator.core.model.Node;
@@ -42,33 +41,16 @@ public class MockReplicaSetModel {
             new Node("test3", 3333)
     );
 
-    public static List<DBObject> mockDBObject() {
-
-        List<DBObject> dbObjects = Lists.newArrayList();
-        for (Node node : MOCK_MONGO_NODES) {
-
-            Map<String, String> dbObjectData = Maps.newHashMap();
-            dbObjectData.put("name", String.format("%s:%s", node.host, node.port));
-            if (node.host.equals(PRIMARY_NODE_HOST)) {
-                dbObjectData.put("stateStr", "PRIMARY");
-            } else {
-                dbObjectData.put("stateStr", "SECONDARY");
-            }
-
-            String hostString = String.format("%s/%s:%s,%s:%s", MOCK_SHARD_NAME, node.host, node.port, node.host, node.port);
-            dbObjectData.put("_id", MOCK_SHARD_NAME);
-            dbObjectData.put("host", hostString);
-
-            dbObjects.add(new BasicDBObject(dbObjectData));
-        }
-
-        return dbObjects;
-    }
-
     public static CommandResult mockMongoResult() {
         CommandResult commandResult = mock(CommandResult.class);
-        when(commandResult.get("members")).thenReturn(MockReplicaSetModel.mockDBObject());
+        when(commandResult.get("members")).thenReturn(new MockDBObjects().mock());
         return commandResult;
+    }
+
+    public static void mockWithEmptyHostState(DBCollection dbCollection) {
+        List<DBObject> dbObjects = new MockDBObjects().setEmptyPrimaryReplica().mock();
+        DBCursor dbCursor = new MockClusterModel.DBCursorIterator(dbObjects);
+        when(dbCollection.find()).thenReturn(dbCursor);
     }
 
     public static DB mockMongoDB(CommandResult commandResult) {
