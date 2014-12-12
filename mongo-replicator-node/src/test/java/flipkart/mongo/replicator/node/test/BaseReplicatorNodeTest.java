@@ -1,4 +1,4 @@
-package flipkart.mongo.node.discovery.test;/*
+/*
  * Copyright 2012-2015, the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,21 +11,23 @@ package flipkart.mongo.node.discovery.test;/*
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
+package flipkart.mongo.replicator.node.test;
+
 import com.mongodb.*;
 import flipkart.mongo.node.discovery.mock.model.MockClusterModel;
 import flipkart.mongo.node.discovery.mock.model.MockReplicaSetModel;
+import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 import junit.framework.TestCase;
 
-import java.util.Map;
-
 /**
- * Created by kishan.gajjar on 09/12/14.
+ * Created by kishan.gajjar on 12/12/14.
  */
-public abstract class BaseDiscoveryTest extends TestCase {
-    protected Map<String, Mongo> mockConnectionPool;
-    protected Mongo mockMongoClient;
-    protected DB mockDB;
+public abstract class BaseReplicatorNodeTest extends TestCase {
+
+    protected ReplicaSetConfig replicaSetConfig;
     protected CommandResult mockCommandResult;
+    protected DB mockDB;
+    protected Mongo mockMongoClient;
     protected DBCollection mockDBCollection;
     protected DBCursor mockDBCursor;
 
@@ -36,7 +38,6 @@ public abstract class BaseDiscoveryTest extends TestCase {
         mockCommandResult = MockReplicaSetModel.mockMongoResult();
         mockDB = MockReplicaSetModel.mockMongoDB(mockCommandResult);
         mockMongoClient = MockReplicaSetModel.mockMongoClient(mockDB);
-        mockConnectionPool = MockReplicaSetModel.mockMongoConnectionPool(mockMongoClient);
         mockDBCollection = MockClusterModel.mockDBCollection(mockDB);
         mockDBCursor = MockClusterModel.mockDBCursor(mockDBCollection);
     }

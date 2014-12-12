@@ -14,7 +14,6 @@
 package flipkart.mongo.replicator.node;
 
 import com.mongodb.*;
-import flipkart.mongo.replicator.core.exceptions.DataStoreWriteFailed;
 import flipkart.mongo.replicator.core.exceptions.MongoReplicaSetException;
 import flipkart.mongo.replicator.core.exceptions.MongoReplicatorException;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
@@ -96,9 +95,6 @@ public class ReplicationTask implements Runnable {
                 try {
                     taskContext.replicationHandler.replicate(event);
                     eventReplicated = true;
-                } catch (DataStoreWriteFailed e) {
-                    logger.error("ReplicatorHandler failed.", e);
-                    this.eventReplicaFailureHandler.handleFailure(event);
                 } catch (MongoReplicatorException e) {
                     logger.error("ReplicatorHandler failed.", e);
                     this.eventReplicaFailureHandler.handleFailure(event);

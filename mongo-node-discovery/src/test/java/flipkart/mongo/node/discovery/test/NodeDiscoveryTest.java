@@ -14,8 +14,8 @@ package flipkart.mongo.node.discovery.test;/*
 import flipkart.mongo.node.discovery.NodeDiscovery;
 import flipkart.mongo.node.discovery.exceptions.ConnectionException;
 import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
-import flipkart.mongo.node.discovery.test.mock.MockClusterModel;
-import flipkart.mongo.node.discovery.test.mock.MockReplicaSetModel;
+import flipkart.mongo.node.discovery.mock.model.MockClusterModel;
+import flipkart.mongo.node.discovery.mock.model.MockReplicaSetModel;
 import flipkart.mongo.replicator.core.exceptions.ReplicatorErrorCode;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.NodeState;

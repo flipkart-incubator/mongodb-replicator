@@ -15,7 +15,7 @@ package flipkart.mongo.node.discovery.test.utils;
 
 import com.google.common.collect.ImmutableList;
 import flipkart.mongo.node.discovery.test.BaseDiscoveryTest;
-import flipkart.mongo.node.discovery.test.mock.MockReplicaSetModel;
+import flipkart.mongo.node.discovery.mock.model.MockReplicaSetModel;
 import flipkart.mongo.node.discovery.utils.DiscoveryUtils;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 import org.junit.Assert;

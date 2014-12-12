@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package flipkart.mongo.node.discovery.test.mock;
+package flipkart.mongo.node.discovery.mock.model;
 
 import com.mongodb.*;
 import org.mockito.Matchers;
@@ -34,9 +34,15 @@ public class MockClusterModel {
     }
 
     public static DBCursor mockDBCursor(DBCollection dbCollection) {
+        return mockDBCursorWithDBObject(dbCollection, new MockDBObjects());
+    }
 
-        DBCursor dbCursor = new DBCursorIterator(new MockDBObjects().mock());
+    public static DBCursor mockDBCursorWithDBObject(DBCollection dbCollection, MockDBObjects mockDBObjects) {
+
+        DBCursor dbCursor = new DBCursorIterator(mockDBObjects.mock());
         when(dbCollection.find()).thenReturn(dbCursor);
+        when(dbCollection.find(Matchers.any(BasicDBObject.class))).thenReturn(dbCursor);
+
         return dbCursor;
     }
 
