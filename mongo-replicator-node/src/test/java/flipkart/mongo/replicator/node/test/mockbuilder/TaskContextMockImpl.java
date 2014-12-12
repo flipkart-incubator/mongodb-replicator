@@ -31,10 +31,10 @@ import org.junit.Assert;
 public class TaskContextMockImpl {
 
     private static MockDBObjects.BSONVariant bsonVariant = MockDBObjects.BSONVariant.ACTUAL_TIME;
-    private static int failureCounter = 0;
 
     public static class MockReplicationHandler implements IReplicationHandler {
 
+        private int failureCounter = 0;
         public MockReplicationHandler(MockDBObjects.BSONVariant mockBsonVariant) {
             bsonVariant = mockBsonVariant;
         }
@@ -77,7 +77,8 @@ public class TaskContextMockImpl {
     }
 
     public static class OpLogFilterMock implements Function<ReplicationEvent, Boolean> {
-
+        private int failureCounter = 0;
+        
         @Override
         public Boolean apply(ReplicationEvent event) {
             Boolean isValid = event.v.getTime() != MockDBObjects.BSONVariant.NOT_VALID.getTime();
