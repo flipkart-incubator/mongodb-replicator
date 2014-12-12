@@ -44,11 +44,12 @@ public abstract class ReplicatorManager {
 
     protected TaskContext getTaskContext() {
 
-        TaskContext context = new TaskContext();
-        context.setCheckPointHandler(checkPointHandler);
-        context.setOplogFilter(oplogFilter);
-        context.setReplicationHandler(replicationHandler);
-        context.setVersionHandler(versionHandler);
+        TaskContext context = new TaskContext.TaskContextBuilder()
+        .withCheckPointHandler(checkPointHandler)
+        .withOplogFilter(oplogFilter)
+        .withReplicationHandler(replicationHandler)
+        .withVersionHandler(versionHandler)
+        .build();
 
         return context;
     }

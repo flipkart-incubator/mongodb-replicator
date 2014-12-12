@@ -27,40 +27,48 @@ import flipkart.mongo.replicator.core.interfaces.VersionHandler;
  */
 public class TaskContext {
 
-    private VersionHandler versionHandler;
-    private Function<ReplicationEvent, Boolean> oplogFilter;
-    private IReplicationHandler replicationHandler;
-    private ICheckPointHandler checkPointHandler;
+    public final VersionHandler versionHandler;
+    public final Function<ReplicationEvent, Boolean> oplogFilter;
+    public final IReplicationHandler replicationHandler;
+    public final ICheckPointHandler checkPointHandler;
 
-    public VersionHandler getVersionHandler() {
-        return versionHandler;
-    }
+    public TaskContext(VersionHandler versionHandler, Function<ReplicationEvent, Boolean> oplogFilter,
+                       IReplicationHandler replicationHandler, ICheckPointHandler checkPointHandler) {
 
-    public void setVersionHandler(VersionHandler versionHandler) {
         this.versionHandler = versionHandler;
-    }
-
-    public Function<ReplicationEvent, Boolean> getOplogFilter() {
-        return oplogFilter;
-    }
-
-    public void setOplogFilter(Function<ReplicationEvent, Boolean> oplogFilter) {
         this.oplogFilter = oplogFilter;
-    }
-
-    public IReplicationHandler getReplicationHandler() {
-        return replicationHandler;
-    }
-
-    public void setReplicationHandler(IReplicationHandler replicationHandler) {
         this.replicationHandler = replicationHandler;
-    }
-
-    public ICheckPointHandler getCheckPointHandler() {
-        return checkPointHandler;
-    }
-
-    public void setCheckPointHandler(ICheckPointHandler checkPointHandler) {
         this.checkPointHandler = checkPointHandler;
+    }
+
+    public static class TaskContextBuilder {
+        private VersionHandler versionHandler;
+        private Function<ReplicationEvent, Boolean> oplogFilter;
+        private IReplicationHandler replicationHandler;
+        private ICheckPointHandler checkPointHandler;
+
+        public TaskContext build() {
+            return new TaskContext(versionHandler, oplogFilter, replicationHandler, checkPointHandler);
+        }
+
+        public TaskContextBuilder withVersionHandler(VersionHandler versionHandler) {
+            this.versionHandler = versionHandler;
+            return this;
+        }
+
+        public TaskContextBuilder withOplogFilter(Function<ReplicationEvent, Boolean> oplogFilter) {
+            this.oplogFilter = oplogFilter;
+            return this;
+        }
+
+        public TaskContextBuilder withReplicationHandler(IReplicationHandler replicationHandler) {
+            this.replicationHandler = replicationHandler;
+            return this;
+        }
+
+        public TaskContextBuilder withCheckPointHandler(ICheckPointHandler checkPointHandler) {
+            this.checkPointHandler = checkPointHandler;
+            return this;
+        }
     }
 }

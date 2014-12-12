@@ -63,7 +63,7 @@ public class ReplicationTask implements Runnable {
 
         DB db = client.getDB("local");
 
-        BSONTimestamp lastCp = taskContext.getCheckPointHandler().getCheckPoint(shardId);
+        BSONTimestamp lastCp = taskContext.checkPointHandler.getCheckPoint(shardId);
 
         DBCollection collection = db.getCollection("oplog.rs");
         DBCursor r;
@@ -75,24 +75,26 @@ public class ReplicationTask implements Runnable {
         DBCursor cursor = r.sort(new BasicDBObject("$natural", 1)).addOption(Bytes.QUERYOPTION_TAILABLE);
         while (cursor.hasNext()) {
             DBObject obj = cursor.next();
-            ReplicationEvent event = taskContext.getVersionHandler().getReplicationEventAdaptor().convert(obj);
+            ReplicationEvent event = taskContext.versionHandler.getReplicationEventAdaptor().convert(obj);
             replicateEvent(event);
 
             if (lastCp == null ||
-                    (event.v.getTime() - lastCp.getTime() >= taskContext.getCheckPointHandler().getCycleTimeinSecs())) {
+                    (event.v.getTime() - lastCp.getTime() >= taskContext.checkPointHandler.getCycleTimeinSecs())) {
 
-                taskContext.getCheckPointHandler().checkPoint(rsConfig.shardName, event.v);
+                taskContext.checkPointHandler.checkPoint(rsConfig.shardName, event.v);
                 lastCp = event.v;
             }
         }
     }
 
     private void replicateEvent(ReplicationEvent event) {
-        if (taskContext.getOplogFilter().apply(event)) {
+
+        Boolean filterApplied = taskContext.oplogFilter.apply(event);
+        if (filterApplied != null && filterApplied) {
             boolean eventReplicated = false;
             do {
                 try {
-                    taskContext.getReplicationHandler().replicate(event);
+                    taskContext.replicationHandler.replicate(event);
                     eventReplicated = true;
                 } catch (DataStoreWriteFailed e) {
                     logger.error("ReplicatorHandler failed.", e);

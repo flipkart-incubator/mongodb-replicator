@@ -28,7 +28,6 @@ import flipkart.mongo.replicator.core.model.ReplicationEvent;
 import flipkart.mongo.replicator.core.model.bootstrapconfigs.SchedulerConfigs;
 import flipkart.mongo.replicator.core.versions.VersionManager;
 
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
