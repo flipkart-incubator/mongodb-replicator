@@ -10,4 +10,6 @@ mongo-replicator-cluster/target/
 mongo-replicator-core/target/
 mongo-replicator-node/target/
 *.iml
+*.iws
+*.ipr
 .idea/

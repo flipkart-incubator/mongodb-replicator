@@ -25,8 +25,6 @@ import org.bson.types.BSONTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.UnknownHostException;
-
 /**
  * Created by pradeep on 31/10/14.
  */
@@ -54,10 +52,10 @@ public class ReplicationTask implements Runnable {
         Mongo client;
         try {
             client = rsConfig.getMasterClientURI().connect();
-        } catch (UnknownHostException e) {
-            throw new ReplicationTaskException("Connection failure for masterClient. RSConfig: " + rsConfig, e);
         } catch (MongoReplicaSetException e) {
             throw new ReplicationTaskException("MasterNode not found. RSConfig: " + rsConfig, e);
+        } catch (Exception e) {
+            throw new ReplicationTaskException("Connection failure for masterClient. RSConfig: " + rsConfig, e);
         }
 
         DB db = client.getDB("local");
