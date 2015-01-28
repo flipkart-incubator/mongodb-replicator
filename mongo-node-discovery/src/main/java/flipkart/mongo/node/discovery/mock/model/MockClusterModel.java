@@ -60,7 +60,7 @@ public class MockClusterModel {
         private int cursor = 0;
 
         public DBCursorIterator(List<DBObject> dbObjects) {
-            super(mock(DBCollection.class), null, null, null);
+            super(mock(DBCollection.class), null, null);
             this.dbObjects = dbObjects;
         }
 
