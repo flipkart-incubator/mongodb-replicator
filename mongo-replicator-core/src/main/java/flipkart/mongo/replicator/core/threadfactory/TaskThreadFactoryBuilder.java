@@ -17,20 +17,21 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.util.HashMap;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Created by kishan.gajjar on 25/01/15.
  */
 public class TaskThreadFactoryBuilder {
 
-    private static HashMap<String, ThreadFactoryBuilder> threadFactoryPool = Maps.newHashMap();
+    private static HashMap<String, ThreadFactory> threadFactoryPool = Maps.newHashMap();
 
-    public static ThreadFactoryBuilder threadFactoryBuilderInstance(String threadNamePattern) {
+    public static ThreadFactory threadFactoryInstance(String threadNamePattern) {
         if (!threadFactoryPool.containsKey(threadNamePattern)) {
             synchronized (TaskThreadFactoryBuilder.class) {
                 if (!threadFactoryPool.containsKey(threadNamePattern)) {
                     ThreadFactoryBuilder threadFactoryBuilder = new ThreadFactoryBuilder().setNameFormat(threadNamePattern);
-                    threadFactoryPool.put(threadNamePattern, threadFactoryBuilder);
+                    threadFactoryPool.put(threadNamePattern, threadFactoryBuilder.build());
                 }
             }
         }

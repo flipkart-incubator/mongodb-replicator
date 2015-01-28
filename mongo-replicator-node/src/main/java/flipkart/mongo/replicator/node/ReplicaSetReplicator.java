@@ -14,13 +14,13 @@
 package flipkart.mongo.replicator.node;
 
 import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 import flipkart.mongo.replicator.core.model.TaskContext;
 import flipkart.mongo.replicator.core.threadfactory.TaskThreadFactoryBuilder;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Created by pradeep on 09/10/14.
@@ -32,8 +32,8 @@ public class ReplicaSetReplicator extends AbstractService {
     private final ReplicationTask.ReplicationTaskFactory replicationTaskFactory;
 
     public ReplicaSetReplicator(TaskContext taskContext, ReplicaSetConfig rsConfig) {
-        ThreadFactoryBuilder threadFactoryBuilder = TaskThreadFactoryBuilder.threadFactoryBuilderInstance(THREAD_NAME_PATTERN);
-        this.replicatorExecutor = Executors.newSingleThreadExecutor(threadFactoryBuilder.build());
+        ThreadFactory threadFactory = TaskThreadFactoryBuilder.threadFactoryInstance(THREAD_NAME_PATTERN);
+        this.replicatorExecutor = Executors.newSingleThreadExecutor(threadFactory);
         this.replicationTaskFactory = new ReplicationTask.ReplicationTaskFactory(taskContext, rsConfig);
     }
 
