@@ -18,6 +18,8 @@ import flipkart.mongo.replicator.core.model.ReplicationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.lang.Math.min;
+
 /**
  * Created by kishan.gajjar on 23/11/14.
  */
@@ -25,6 +27,7 @@ public class EventReplicaFailureHandler {
     private static final Logger logger = LoggerFactory.getLogger(EventReplicaFailureHandler.class);
 
     private final int WAIT_TIME_FOR_RETRY = 1000;   // 1000ms
+    private final int MAX_WAIT_TIME_FOR_RETRY = 10000;   // 10000ms
     private Optional<ReplicationEvent> replicationEvent = Optional.absent();
     private int retryWaitTime = WAIT_TIME_FOR_RETRY;
 
@@ -35,11 +38,13 @@ public class EventReplicaFailureHandler {
      * @param failedEvent
      */
     public void handleFailure(ReplicationEvent failedEvent) {
+
+        int sleepTime = this.retryWaitTime;
         if (replicationEvent.isPresent() && replicationEvent.get() == failedEvent) {
-            this.retryWaitTime += WAIT_TIME_FOR_RETRY;
-        } else {
-            this.retryWaitTime = WAIT_TIME_FOR_RETRY;
+            sleepTime += WAIT_TIME_FOR_RETRY;
         }
+
+        this.retryWaitTime = min(sleepTime, MAX_WAIT_TIME_FOR_RETRY);
         this.replicationEvent = Optional.of(failedEvent);
 
         try {
