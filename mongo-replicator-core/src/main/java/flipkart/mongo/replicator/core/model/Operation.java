@@ -11,19 +11,31 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package flipkart.mongodb.replicator.example;
-
-import com.google.common.base.Function;
-import flipkart.mongo.replicator.core.model.Operation;
-import flipkart.mongo.replicator.core.model.ReplicationEvent;
+package flipkart.mongo.replicator.core.model;
 
 /**
- * Created by kishan.gajjar on 03/12/14.
+ * Created by kishan.gajjar on 14/07/15.
  */
-public class OplogExampleFilter implements Function<ReplicationEvent, Boolean> {
+public enum Operation {
+    INSERT("i"),
+    UPDATE("u"),
+    DELETE("d"),
+    INITIATE("n"),
+    COMMAND("c"),
+    UNKNOWN("unknown");
 
-    @Override
-    public Boolean apply(ReplicationEvent replicationEvent) {
-        return replicationEvent.namespace.equalsIgnoreCase("cv.o") && replicationEvent.operation.equals(Operation.INSERT);
+    private final String operationStr;
+
+    Operation(String operationStr) {
+        this.operationStr = operationStr;
+    }
+
+    public static Operation getOperationType(String operationStr) {
+        for (Operation operation : Operation.values()) {
+            if (operation.operationStr.equals(operationStr)) {
+                return operation;
+            }
+        }
+        return UNKNOWN;
     }
 }

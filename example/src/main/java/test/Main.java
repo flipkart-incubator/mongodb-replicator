@@ -22,6 +22,7 @@ import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 import flipkart.mongo.replicator.core.model.MongoV;
 import flipkart.mongo.replicator.core.model.Node;
+import flipkart.mongo.replicator.core.model.Operation;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
 import org.bson.types.BSONTimestamp;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class Main {
         try {
 
             ClusterManager clusterManager = new ManagerBuilder()
-                    .addMongoNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
+                    .addMongoNode(new Node("cart-mongo1.nm.flipkart.com", 26300))
                     .withReplicationHandler(new Test())
                     .withCheckPoint(new InMemCheckPointHandler())
                     .withOplogFilter(new OplogFilter())
@@ -97,7 +98,7 @@ public class Main {
 
         @Override
         public Boolean apply(ReplicationEvent event) {
-            return event.namespace.equalsIgnoreCase("cv.o") && event.operation.equalsIgnoreCase("i");
+            return event.namespace.equalsIgnoreCase("cv.o") && event.operation.equals(Operation.INSERT);
         }
     }
 }

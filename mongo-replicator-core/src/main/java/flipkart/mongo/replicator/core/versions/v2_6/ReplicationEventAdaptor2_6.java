@@ -29,6 +29,7 @@ public class ReplicationEventAdaptor2_6 implements IReplicationEventAdaptor {
         BSONTimestamp v = (BSONTimestamp) dbObject.get("ts");
         Long h = (Long) dbObject.get("h");
         String namespace = dbObject.get("ns").toString();
-        return new ReplicationEvent(operation, v, h, namespace, (DBObject) dbObject.get("o"));
+        DBObject objectId = (DBObject) dbObject.get("o2");
+        return new ReplicationEvent(operation, v, h, namespace, (DBObject) dbObject.get("o"), objectId);
     }
 }
