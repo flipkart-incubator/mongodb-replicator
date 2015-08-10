@@ -17,7 +17,10 @@ import com.google.common.util.concurrent.AbstractService;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 import flipkart.mongo.replicator.core.model.TaskContext;
 import flipkart.mongo.replicator.core.threadfactory.TaskThreadFactoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -26,8 +29,9 @@ import java.util.concurrent.ThreadFactory;
  * Created by pradeep on 09/10/14.
  */
 public class ReplicaSetReplicator extends AbstractService {
-    private final String THREAD_NAME_PATTERN = "mongo-replicaset-replicator-%d";
+    private static final Logger logger = LoggerFactory.getLogger(ReplicaSetReplicator.class);
 
+    private final String THREAD_NAME_PATTERN = "mongo-replicaset-replicator-%d";
     private final ExecutorService replicatorExecutor;
     private final ReplicationTask.ReplicationTaskFactory replicationTaskFactory;
 
@@ -39,7 +43,11 @@ public class ReplicaSetReplicator extends AbstractService {
 
     @Override
     protected void doStart() {
-        replicatorExecutor.submit(replicationTaskFactory.instance());
+        try {
+            replicatorExecutor.submit(replicationTaskFactory.instance());
+        } catch (Exception e) {
+            logger.error("Exception in replicator thread", e);
+        }
     }
 
     @Override

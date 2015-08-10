@@ -41,6 +41,7 @@ public class ReplicationTask implements Runnable {
     private final TaskContext taskContext;
     private final ReplicaSetConfig rsConfig;
     private final EventReplicaFailureHandler eventReplicaFailureHandler;
+    private BSONTimestamp lastCp;
 
     public ReplicationTask(TaskContext taskContext, ReplicaSetConfig rsConfig) {
         this.taskContext = taskContext;
@@ -61,17 +62,26 @@ public class ReplicationTask implements Runnable {
         }
 
         DB db = client.getDB("local");
-
-        BSONTimestamp lastCp = taskContext.checkPointHandler.getCheckPoint(shardId);
+        lastCp = taskContext.checkPointHandler.getCheckPoint(shardId);
 
         DBCollection collection = db.getCollection("oplog.rs");
-        DBCursor r;
-        if (lastCp == null) {
-            r = collection.find();
-        } else {
-            r = collection.find(new BasicDBObject("ts", new BasicDBObject("$gt", lastCp)));
-        }
-        DBCursor cursor = r.sort(new BasicDBObject("$natural", 1)).addOption(Bytes.QUERYOPTION_TAILABLE);
+        DBCursor r, cursor;
+        do {
+            if (lastCp == null) {
+                r = collection.find();
+            } else {
+                r = collection.find(new BasicDBObject("ts", new BasicDBObject("$gt", lastCp)));
+            }
+            cursor = r.sort(new BasicDBObject("$natural", 1)).addOption(Bytes.QUERYOPTION_TAILABLE);
+            try {
+                executeCursor(cursor);
+            } catch (Exception e) {
+                logger.error("Exception with cursor.", e);
+            }
+        } while (true);
+    }
+
+    private void executeCursor(Cursor cursor) {
         while (cursor.hasNext()) {
             DBObject obj = cursor.next();
             ReplicationEvent event = taskContext.versionHandler.getReplicationEventAdaptor().convert(obj);
