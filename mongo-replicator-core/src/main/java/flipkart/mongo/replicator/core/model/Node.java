@@ -13,6 +13,8 @@
 
 package flipkart.mongo.replicator.core.model;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.mongodb.MongoURI;
 
 /**
@@ -22,7 +24,7 @@ public class Node {
 
     public final String host;
     public final int port;
-
+    private Optional<Authorization> optionalAuthorization = Optional.absent();
     private NodeState state;
 
     public Node(String host, int port, NodeState state) {
@@ -36,7 +38,20 @@ public class Node {
     }
 
     public MongoURI getMongoURI() {
-        return new MongoURI("mongodb://" + host + ":" + port );
+        String hostURI = String.format("%s:%s", host, port);
+        String authorizationURI = null;
+        if (optionalAuthorization.isPresent()) {
+            Authorization authorization = optionalAuthorization.get();
+            authorizationURI = String.format("%s:%s", authorization.username, authorization.password);
+        }
+
+        String mongoURI;
+        if (Strings.isNullOrEmpty(authorizationURI)) {
+            mongoURI = String.format("%s@%s", authorizationURI, hostURI);
+        } else {
+            mongoURI = hostURI;
+        }
+        return new MongoURI("mongodb://" + mongoURI);
     }
 
     public NodeState getState() {
@@ -45,6 +60,14 @@ public class Node {
 
     public void setState(NodeState state) {
         this.state = state;
+    }
+
+    public void setAuthorization(Authorization optionalAuthorization) {
+        this.optionalAuthorization = Optional.fromNullable(optionalAuthorization);
+    }
+
+    public Optional<Authorization> getAuthorization() {
+        return optionalAuthorization;
     }
 
     @Override

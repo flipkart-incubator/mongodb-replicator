@@ -64,6 +64,7 @@ public class ReplicationTask implements Runnable {
         DB db = client.getDB("local");
         lastCp = taskContext.checkPointHandler.getCheckPoint(shardId);
 
+        logger.info(String.format("######## START REPLICATOR FOR MongoURI: %s. LastCheckpoint: %s #######", client.getAddress(), lastCp.toString()));
         DBCollection collection = db.getCollection("oplog.rs");
         DBCursor r, cursor;
         do {

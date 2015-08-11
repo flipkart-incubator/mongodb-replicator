@@ -23,6 +23,7 @@ import com.mongodb.Mongo;
 import flipkart.mongo.node.discovery.exceptions.ConnectionException;
 import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
 import flipkart.mongo.replicator.core.exceptions.ReplicatorErrorCode;
+import flipkart.mongo.replicator.core.model.Authorization;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.NodeState;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
@@ -51,10 +52,12 @@ public class NodeDiscovery {
     public ReplicaSetConfig discover() throws MongoDiscoveryException {
 
         List<Node> nodesInReplicaSet = Lists.newArrayList();
+        Optional<Authorization> authorizationOptional = Optional.absent();
         Mongo client = null;
         for (Node replicaNode : mongoReplicaSet.getNodes()) {
             try {
                 client = MongoConnector.getMongoClient(replicaNode.getMongoURI());
+                authorizationOptional = replicaNode.getAuthorization();
                 break;
             } catch (ConnectionException e) {
                 logger.warn("Not able to connect to replicaNode: " + replicaNode.getMongoURI(), e);
@@ -69,7 +72,7 @@ public class NodeDiscovery {
         List<DBObject> dbDataList = (ArrayList<DBObject>) replSetGetStatus.get("members");
 
         for (DBObject dbObject : dbDataList) {
-            Node replicaNodeWithState = getReplicaNodeWithState(dbObject, mongoReplicaSet);
+            Node replicaNodeWithState = getReplicaNodeWithState(dbObject, mongoReplicaSet, authorizationOptional);
             nodesInReplicaSet.add(replicaNodeWithState);
         }
 
@@ -86,7 +89,7 @@ public class NodeDiscovery {
         return shardName;
     }
 
-    private Node getReplicaNodeWithState(DBObject dbObject, ReplicaSetConfig replicaSetConfig) {
+    private Node getReplicaNodeWithState(DBObject dbObject, ReplicaSetConfig replicaSetConfig, Optional<Authorization> authorizationOptional) {
 
         String mongoUri = (String) dbObject.get("name");
         String[] hostData = mongoUri.split(":");
@@ -96,7 +99,9 @@ public class NodeDiscovery {
 
         if (!replicaNode.isPresent()) {
             logger.error(String.format("ReplicaNode (%s, %s) is not present in replicaSet: %s", host, port, replicaSetConfig));
-            replicaNode = Optional.of(new Node(host, port));
+            Node node = new Node(host, port);
+            node.setAuthorization(authorizationOptional.orNull());
+            replicaNode = Optional.of(node);
         }
 
         String nodeState = (String) dbObject.get("stateStr");

@@ -13,6 +13,7 @@
 
 package flipkart.mongo.node.discovery;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mongodb.DBCursor;
@@ -21,6 +22,7 @@ import com.mongodb.Mongo;
 import flipkart.mongo.node.discovery.exceptions.ConnectionException;
 import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
 import flipkart.mongo.replicator.core.exceptions.ReplicatorErrorCode;
+import flipkart.mongo.replicator.core.model.Authorization;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 import org.slf4j.Logger;
@@ -59,10 +61,12 @@ public class ReplicaDiscovery {
     private List<ReplicaSetConfig> getMongoSReplicaSets() throws MongoDiscoveryException {
 
         List<ReplicaSetConfig> replicaSetConfigs = Lists.newArrayList();
+        Optional<Authorization> authorizationOptional = Optional.absent();
         Mongo client = null;
         for (Node configSvrNode : configSvrNodes) {
             try {
                 client = MongoConnector.getMongoClient(configSvrNode.getMongoURI());
+                authorizationOptional = configSvrNode.getAuthorization();
                 break;
             } catch (ConnectionException e) {
                 logger.warn("Not able to connect to configSvr: " + configSvrNode.getMongoURI(), e);
@@ -78,7 +82,7 @@ public class ReplicaDiscovery {
             String shardName = (String) dbObject.get("_id");
             String hostString = (String) dbObject.get("host");
 
-            List<Node> replicaNodes = this.getReplicaNodes(hostString);
+            List<Node> replicaNodes = this.getReplicaNodes(hostString, authorizationOptional);
             if (!replicaNodes.isEmpty()) {
                 ReplicaSetConfig replicaConfig = new ReplicaSetConfig(shardName, replicaNodes);
                 replicaSetConfigs.add(replicaConfig);
@@ -88,7 +92,7 @@ public class ReplicaDiscovery {
         return replicaSetConfigs;
     }
 
-    private List<Node> getReplicaNodes(String hostString) {
+    private List<Node> getReplicaNodes(String hostString, Optional<Authorization> authorizationOptional) {
 
         List<Node> replicaNodes = Lists.newArrayList();
 
@@ -105,7 +109,9 @@ public class ReplicaDiscovery {
             String host = details[0];
             int port = Integer.parseInt(details[1]);
 
-            replicaNodes.add(new Node(host, port));
+            Node node = new Node(host, port);
+            node.setAuthorization(authorizationOptional.orNull());
+            replicaNodes.add(node);
         }
 
         return replicaNodes;
