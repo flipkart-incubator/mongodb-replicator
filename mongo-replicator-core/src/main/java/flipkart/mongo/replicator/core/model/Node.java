@@ -46,7 +46,7 @@ public class Node {
         }
 
         String mongoURI;
-        if (Strings.isNullOrEmpty(authorizationURI)) {
+        if (!Strings.isNullOrEmpty(authorizationURI)) {
             mongoURI = String.format("%s@%s", authorizationURI, hostURI);
         } else {
             mongoURI = hostURI;
