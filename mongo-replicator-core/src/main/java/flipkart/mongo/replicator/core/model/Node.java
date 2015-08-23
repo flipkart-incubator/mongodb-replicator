@@ -40,14 +40,16 @@ public class Node {
     public MongoURI getMongoURI() {
         String hostURI = String.format("%s:%s", host, port);
         String authorizationURI = null;
+        String authorizedDB = "";
         if (optionalAuthorization.isPresent()) {
             Authorization authorization = optionalAuthorization.get();
             authorizationURI = String.format("%s:%s", authorization.username, authorization.password);
+            authorizedDB = authorization.getAuthorizedDB().or(authorizedDB);
         }
 
         String mongoURI;
         if (!Strings.isNullOrEmpty(authorizationURI)) {
-            mongoURI = String.format("%s@%s", authorizationURI, hostURI);
+            mongoURI = String.format("%s@%s/%s", authorizationURI, hostURI, authorizedDB);
         } else {
             mongoURI = hostURI;
         }

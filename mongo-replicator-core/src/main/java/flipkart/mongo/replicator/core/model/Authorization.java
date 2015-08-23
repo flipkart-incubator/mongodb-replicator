@@ -13,15 +13,26 @@
 
 package flipkart.mongo.replicator.core.model;
 
+import com.google.common.base.Optional;
+
 /**
  * Created by kishan.gajjar on 12/08/15.
  */
 public class Authorization {
     public final String username;
     public final String password;
+    private Optional<String> authorizedDB = Optional.absent();
 
     public Authorization(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public Optional<String> getAuthorizedDB() {
+        return authorizedDB;
+    }
+
+    public void setAuthorizedDB(String authorizedDB) {
+        this.authorizedDB = Optional.fromNullable(authorizedDB);
     }
 }
