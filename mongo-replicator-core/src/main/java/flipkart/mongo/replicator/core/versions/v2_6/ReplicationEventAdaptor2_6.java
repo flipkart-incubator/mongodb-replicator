@@ -13,10 +13,10 @@
 
 package flipkart.mongo.replicator.core.versions.v2_6;
 
-import com.mongodb.DBObject;
 import flipkart.mongo.replicator.core.interfaces.IReplicationEventAdaptor;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
-import org.bson.types.BSONTimestamp;
+import org.bson.BsonTimestamp;
+import org.bson.Document;
 
 /**
  * Created by pradeep on 30/10/14.
@@ -24,12 +24,13 @@ import org.bson.types.BSONTimestamp;
 public class ReplicationEventAdaptor2_6 implements IReplicationEventAdaptor {
 
     @Override
-    public ReplicationEvent convert(DBObject dbObject) {
-        String operation = dbObject.get("op").toString();
-        BSONTimestamp v = (BSONTimestamp) dbObject.get("ts");
-        Long h = (Long) dbObject.get("h");
-        String namespace = dbObject.get("ns").toString();
-        DBObject objectId = (DBObject) dbObject.get("o2");
-        return new ReplicationEvent(operation, v, h, namespace, (DBObject) dbObject.get("o"), objectId);
+    public ReplicationEvent convert(Document dbObject) {
+        String operation = dbObject.getString("op");
+        BsonTimestamp v = (BsonTimestamp) dbObject.get("ts");
+        long h = dbObject.getLong("h");
+        String namespace = dbObject.getString("ns");
+        Document objectId = (Document) dbObject.get("o2");
+        Document eventData = (Document) dbObject.get("o");
+        return new ReplicationEvent(operation, v, h, namespace, eventData, objectId);
     }
 }

@@ -16,21 +16,17 @@ package flipkart.mongo.node.discovery;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.mongodb.CommandResult;
-import com.mongodb.DB;
-import com.mongodb.DBObject;
-import com.mongodb.Mongo;
-import flipkart.mongo.node.discovery.exceptions.ConnectionException;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
 import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
-import flipkart.mongo.replicator.core.exceptions.ReplicatorErrorCode;
 import flipkart.mongo.replicator.core.model.Authorization;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.NodeState;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,36 +49,24 @@ public class NodeDiscovery {
 
         List<Node> nodesInReplicaSet = Lists.newArrayList();
         Optional<Authorization> authorizationOptional = Optional.absent();
-        Mongo client = null;
-        for (Node replicaNode : mongoReplicaSet.getNodes()) {
-            try {
-                client = MongoConnector.getMongoClient(replicaNode.getMongoURI());
-                authorizationOptional = replicaNode.getAuthorization();
-                break;
-            } catch (ConnectionException e) {
-                logger.warn("Not able to connect to replicaNode: " + replicaNode.getMongoURI(), e);
-            }
-        }
+        MongoClient client = MongoConnector.getMongoClient(mongoReplicaSet.getNodes());
 
-        if (client == null)
-            throw new MongoDiscoveryException(ReplicatorErrorCode.NODE_MONGO_CLIENT_FAILURE);
+        MongoDatabase dbConnection = client.getDatabase(DB_FOR_DISCOVERY);
+        Document replicaSetCmd = new Document("replSetGetStatus", "1");
+        Document replSetGetStatus = dbConnection.runCommand(replicaSetCmd);
+        List<Document> memberDocuments = (List<Document>) replSetGetStatus.get("members");
 
-        DB dbConnection = client.getDB(DB_FOR_DISCOVERY);
-        CommandResult replSetGetStatus = dbConnection.command("replSetGetStatus");
-        List<DBObject> dbDataList = (ArrayList<DBObject>) replSetGetStatus.get("members");
-
-        for (DBObject dbObject : dbDataList) {
-            Node replicaNodeWithState = getReplicaNodeWithState(dbObject, mongoReplicaSet, authorizationOptional);
+        for (Document member : memberDocuments) {
+            Node replicaNodeWithState = getReplicaNodeWithState(member, mongoReplicaSet, authorizationOptional);
             nodesInReplicaSet.add(replicaNodeWithState);
         }
 
         ReplicaSetConfig replicaSetConfig = new ReplicaSetConfig(getShardName(replSetGetStatus), nodesInReplicaSet);
         logger.info("ReplicaSet found: " + replicaSetConfig);
-
         return replicaSetConfig;
     }
 
-    private String getShardName(CommandResult replSetGetStatus) {
+    private String getShardName(Document replSetGetStatus) {
 
         String shardName = (String) replSetGetStatus.get("set");
         if (Strings.isNullOrEmpty(shardName)) {
@@ -92,26 +76,26 @@ public class NodeDiscovery {
         return shardName;
     }
 
-    private Node getReplicaNodeWithState(DBObject dbObject, ReplicaSetConfig replicaSetConfig, Optional<Authorization> authorizationOptional) {
+    private Node getReplicaNodeWithState(Document member, ReplicaSetConfig replicaSetConfig, Optional<Authorization> authorizationOptional) {
 
-        String mongoUri = (String) dbObject.get("name");
+        String mongoUri = member.getString("name");
         String[] hostData = mongoUri.split(":");
         String host = hostData[0];
         int port = Integer.parseInt(hostData[1]);
-        Optional<Node> replicaNode = replicaSetConfig.findNode(host, port);
+        Optional<Node> replicaNodeOptional = replicaSetConfig.findNode(host, port);
 
-        if (!replicaNode.isPresent()) {
+        if (!replicaNodeOptional.isPresent()) {
             logger.error(String.format("ReplicaNode (%s, %s) is not present in replicaSet: %s", host, port, replicaSetConfig));
             Node node = new Node(host, port);
-            node.setAuthorization(authorizationOptional.orNull());
-            replicaNode = Optional.of(node);
+            replicaNodeOptional = Optional.of(node);
         }
 
-        String nodeState = (String) dbObject.get("stateStr");
+        Node replicaNode = replicaNodeOptional.get();
+        String nodeState = member.getString("stateStr");
         if (NodeState.DB_STATE_MAP.containsKey(nodeState)) {
-            replicaNode.get().setState(NodeState.DB_STATE_MAP.get(nodeState));
+            replicaNode.setState(NodeState.DB_STATE_MAP.get(nodeState));
         }
 
-        return replicaNode.get();
+        return replicaNode;
     }
 }

@@ -16,6 +16,7 @@ package flipkart.mongo.replicator.bootstrap;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.mongodb.MongoCredential;
 import flipkart.mongo.node.discovery.NodeDiscovery;
 import flipkart.mongo.node.discovery.ReplicaDiscovery;
 import flipkart.mongo.replicator.cluster.ClusterManager;
@@ -23,10 +24,10 @@ import flipkart.mongo.replicator.core.exceptions.MongoReplicatorException;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 import flipkart.mongo.replicator.core.model.*;
+import flipkart.mongo.replicator.core.model.bootstrapconfigs.MongoConnectorConfigs;
 import flipkart.mongo.replicator.core.model.bootstrapconfigs.SchedulerConfigs;
 import flipkart.mongo.replicator.node.ReplicaSetManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,24 +40,15 @@ public class ManagerBuilder {
     private Function<ReplicationEvent, Boolean> filter;
     private SchedulerConfigs schedulerConfigs = new SchedulerConfigs();
     private IReplicationHandler replicationHandler;
-    private ArrayList<Node> mongoNodes;
+    private List<Node> mongoNodes;
+    private List<MongoCredential> mongoCredentials = Lists.newArrayList();
 
-    public ManagerBuilder() {
-        mongoNodes = Lists.newArrayList();
+    public ManagerBuilder(Node mongoNode) {
+        this(Lists.newArrayList(mongoNode));
     }
 
-    public ManagerBuilder(ArrayList<Node> mongoNodes) {
+    public ManagerBuilder(List<Node> mongoNodes) {
         this.mongoNodes = mongoNodes;
-    }
-
-    public ManagerBuilder addMongoNode(Node mongoNode) {
-        this.mongoNodes.add(mongoNode);
-        return this;
-    }
-
-    public ManagerBuilder withMongoNodes(ArrayList<Node> mongoNodes) {
-        this.mongoNodes = mongoNodes;
-        return this;
     }
 
     public ManagerBuilder withReplicationHandler(IReplicationHandler replicationHandler) {
@@ -79,6 +71,11 @@ public class ManagerBuilder {
         return this;
     }
 
+    public ManagerBuilder withMongoCredentials(List<MongoCredential> mongoCredentials) {
+        this.mongoCredentials = mongoCredentials;
+        return this;
+    }
+
     public ManagerBuilder setSchedulerConfigs(long initialDelay, long periodicDelay) {
 
         this.schedulerConfigs.setInitialDelay(initialDelay);
@@ -86,8 +83,13 @@ public class ManagerBuilder {
         return this;
     }
 
+    private void setMongoConnectorConfig() {
+        MongoConnectorConfigs.setInstance(mongoCredentials);
+    }
+
     public ReplicaSetManager buildReplicaSetManager() throws MongoReplicatorException {
 
+        setMongoConnectorConfig();
         NodeDiscovery nodeDiscovery = new NodeDiscovery(new ReplicaSetConfig("ReplicaSetShardName", mongoNodes));
         ReplicaSetConfig replicaSetConfig = nodeDiscovery.discover();
 
@@ -96,6 +98,7 @@ public class ManagerBuilder {
 
     public ClusterManager buildClusterManager() throws MongoReplicatorException {
 
+        setMongoConnectorConfig();
         ReplicaDiscovery replicaDiscover = new ReplicaDiscovery(mongoNodes);
         ImmutableList<ReplicaSetConfig> replicaSetConfigs = replicaDiscover.discover();
         Cluster cluster = new Cluster(replicaSetConfigs, mongoNodes);

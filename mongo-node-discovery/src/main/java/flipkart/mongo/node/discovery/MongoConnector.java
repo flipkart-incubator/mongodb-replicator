@@ -13,14 +13,14 @@
 
 package flipkart.mongo.node.discovery;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mongodb.Mongo;
-import com.mongodb.MongoURI;
-import flipkart.mongo.node.discovery.exceptions.ConnectionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.mongodb.MongoClient;
+import com.mongodb.ServerAddress;
+import flipkart.mongo.replicator.core.model.Node;
+import flipkart.mongo.replicator.core.model.bootstrapconfigs.MongoConnectorConfigs;
 
-import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,24 +28,24 @@ import java.util.Map;
  */
 public class MongoConnector {
 
-    private static final Logger logger = LoggerFactory.getLogger(MongoConnector.class);
-    private static Map<String, Mongo> MONGO_CONNECTION_POOL = Maps.newHashMap();
+    private static Map<Integer, MongoClient> MONGO_CONNECTION_POOL = Maps.newHashMap();
 
-    public static Mongo getMongoClient(MongoURI mongoURI) throws ConnectionException {
+    public static synchronized MongoClient getMongoClient(List<Node> mongoNodes) {
 
-        String mongoUriString = mongoURI.toString();
-        if (MONGO_CONNECTION_POOL.containsKey(mongoUriString)) {
-            return MONGO_CONNECTION_POOL.get(mongoUriString);
+        int nodeHashCode = mongoNodes.hashCode();
+        if (MONGO_CONNECTION_POOL.containsKey(nodeHashCode)) {
+            return MONGO_CONNECTION_POOL.get(nodeHashCode);
         }
 
-        try {
-            Mongo mongoClient = mongoURI.connect();
-            MONGO_CONNECTION_POOL.put(mongoUriString, mongoClient);
-            return mongoClient;
-        } catch (UnknownHostException e) {
-            logger.error("Not able to connect configSvr: " + mongoUriString, e);
+        List<ServerAddress> serverAddresses = Lists.newArrayList();
+        for (Node node : mongoNodes) {
+            ServerAddress serverAddress = new ServerAddress(node.host, node.port);
+            serverAddresses.add(serverAddress);
         }
+        MongoConnectorConfigs connectorConfigs = MongoConnectorConfigs.getInstance();
+        MongoClient mongoClient = new MongoClient(serverAddresses, connectorConfigs.mongoCredentials);
+        MONGO_CONNECTION_POOL.put(nodeHashCode, mongoClient);
 
-        throw new ConnectionException("Not able to connect to MongoUri: " + mongoUriString);
+        return mongoClient;
     }
 }

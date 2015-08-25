@@ -13,14 +13,14 @@
 
 package flipkart.mongo.replicator.core.interfaces;
 
-import com.mongodb.DBObject;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
+import org.bson.Document;
 
 /**
  * Created by pradeep on 10/10/14.
  */
 public interface IReplicationEventAdaptor {
 
-    ReplicationEvent convert(DBObject dbObject);
+    ReplicationEvent convert(Document document);
 
 }

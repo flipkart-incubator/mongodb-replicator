@@ -14,9 +14,7 @@
 package flipkart.mongo.replicator.node.test.mockbuilder;
 
 import com.google.common.base.Function;
-import com.mongodb.DBObject;
 import com.mongodb.Mongo;
-import com.mongodb.MongoURI;
 import flipkart.mongo.node.discovery.mock.model.MockDBObjects;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.interfaces.IReplicationEventAdaptor;
@@ -26,6 +24,7 @@ import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
 import flipkart.mongo.replicator.core.model.TaskContext;
 import flipkart.mongo.replicator.core.versions.v2_6.VersionHandler2_6;
+import org.bson.Document;
 import org.mockito.Matchers;
 
 import static org.mockito.Mockito.mock;
@@ -38,12 +37,6 @@ public class ReplicationTaskMockBuilder {
 
     public static ReplicaSetConfig mockReplicaSetWithClient(Mongo mongoClient) {
         ReplicaSetConfig replicaSetConfig = mock(ReplicaSetConfig.class);
-        MongoURI mockMongoURI = mock(MongoURI.class);
-        try {
-            when(replicaSetConfig.getMasterClientURI()).thenReturn(mockMongoURI);
-            when(mockMongoURI.connect()).thenReturn(mongoClient);
-        } catch (Exception e) {
-        }
         return replicaSetConfig;
     }
 
@@ -65,7 +58,7 @@ public class ReplicationTaskMockBuilder {
     public static VersionHandler mockVersionHandler(ReplicationEvent event) {
         VersionHandler versionHandler = new VersionHandler2_6();
         IReplicationEventAdaptor replicationEventAdaptor = mock(IReplicationEventAdaptor.class);
-        when(replicationEventAdaptor.convert(Matchers.any(DBObject.class))).thenReturn(event);
+        when(replicationEventAdaptor.convert(Matchers.any(Document.class))).thenReturn(event);
 
         return versionHandler;
     }

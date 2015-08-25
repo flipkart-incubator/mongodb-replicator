@@ -33,8 +33,7 @@ public class ClusterReplicatorExample {
     public static void main(String args[]) {
 
         try {
-            ClusterManager clusterManager = new ManagerBuilder()
-                    .addMongoNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
+            ClusterManager clusterManager = new ManagerBuilder(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
                     .withReplicationHandler(new ReplicationHandlerExample())
                     .withCheckPoint(new CheckPointExampleHandler())
                     .withOplogFilter(new OplogExampleFilter())

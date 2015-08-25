@@ -13,46 +13,23 @@
 
 package flipkart.mongo.node.discovery.test;
 
-import com.mongodb.Mongo;
-import com.mongodb.MongoURI;
+import com.mongodb.MongoClient;
 import flipkart.mongo.node.discovery.MongoConnector;
-import flipkart.mongo.node.discovery.exceptions.ConnectionException;
-import org.junit.Assert;
-
-import java.net.UnknownHostException;
+import flipkart.mongo.replicator.core.model.Node;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by kishan.gajjar on 12/12/14.
  */
 public class MongoConnectorTest extends BaseDiscoveryTest {
 
-    private MongoURI mockMongoURI;
-    private Mongo mockMongoClient;
+    private Node mockMongoURI;
+    private MongoClient mockMongoClient;
 
     @Override
     public void setUp() throws Exception {
-        mockMongoURI = mock(MongoURI.class);
-        mockMongoClient = mock(Mongo.class);
+        mockMongoClient = mock(MongoClient.class);
         MongoConnector mongoConnector = new MongoConnector();
-    }
-
-    public void testMongoClient() throws Exception {
-        when(mockMongoURI.connect()).thenReturn(mockMongoClient);
-        Mongo mongoClient = MongoConnector.getMongoClient(mockMongoURI);
-
-        Assert.assertTrue("MongoClient assertion", mockMongoClient == mongoClient);
-    }
-
-    public void testMongoClientException() throws Exception{
-        when(mockMongoURI.connect()).thenThrow(UnknownHostException.class);
-
-        try {
-            MongoConnector.getMongoClient(mockMongoURI);
-        } catch (Exception e) {
-            Assert.assertSame("ConnectionException assertion", e.getClass(), ConnectionException.class);
-        }
     }
 }

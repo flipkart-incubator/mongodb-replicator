@@ -14,21 +14,21 @@
 package flipkart.mongo.replicator.core.model;
 
 import com.google.common.base.Optional;
-import com.mongodb.DBObject;
-import org.bson.types.BSONTimestamp;
+import org.bson.BsonTimestamp;
+import org.bson.Document;
 
 /**
  * Created by pradeep on 10/10/14.
  */
 public class ReplicationEvent {
     public final Operation operation;
-    public final BSONTimestamp v;
+    public final BsonTimestamp v;
     public final long h;
     public final String namespace;
-    public final DBObject eventData;
-    public final Optional<DBObject> objectId;
+    public final Document eventData;
+    public final Optional<Document> objectId;
 
-    public ReplicationEvent(String operation, BSONTimestamp v, long h, String namespace, DBObject eventData, DBObject objectId) {
+    public ReplicationEvent(String operation, BsonTimestamp v, long h, String namespace, Document eventData, Document objectId) {
         this.operation = Operation.getOperationType(operation);
         this.v = v;
         this.h = h;

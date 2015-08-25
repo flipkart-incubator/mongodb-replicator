@@ -24,7 +24,7 @@ import flipkart.mongo.replicator.core.model.MongoV;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.Operation;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
-import org.bson.types.BSONTimestamp;
+import org.bson.BsonTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +46,7 @@ public class Main {
 
         try {
 
-            ClusterManager clusterManager = new ManagerBuilder()
-                    .addMongoNode(new Node("cart-mongo1.nm.flipkart.com", 26300))
+            ClusterManager clusterManager = new ManagerBuilder(new Node("10.33.41.177", 27200))
                     .withReplicationHandler(new Test())
                     .withCheckPoint(new InMemCheckPointHandler())
                     .withOplogFilter(new OplogFilter())
@@ -62,21 +61,21 @@ public class Main {
     }
 
     public static class InMemCheckPointHandler implements ICheckPointHandler {
-        ConcurrentHashMap<String, BSONTimestamp> checkpoint = new ConcurrentHashMap<String, BSONTimestamp>();
+        ConcurrentHashMap<String, BsonTimestamp> checkpoint = new ConcurrentHashMap<String, BsonTimestamp>();
 
         @Override
-        public void checkPoint(String replicaSetId, BSONTimestamp timestamp) {
+        public void checkPoint(String replicaSetId, BsonTimestamp timestamp) {
 //            System.out.println("replSet::" + replicaSetId + ", timestamp::(" + timestamp.getTime() + "," + timestamp.getInc() + ")");
             checkpoint.put(replicaSetId, timestamp);
         }
 
         @Override
-        public ImmutableMap<String, BSONTimestamp> getAllCheckPoints() {
+        public ImmutableMap<String, BsonTimestamp> getAllCheckPoints() {
             return ImmutableMap.copyOf(checkpoint);
         }
 
         @Override
-        public BSONTimestamp getCheckPoint(String replicaSetId) {
+        public BsonTimestamp getCheckPoint(String replicaSetId) {
             return checkpoint.get(replicaSetId);
         }
 

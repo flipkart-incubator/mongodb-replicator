@@ -13,10 +13,6 @@
 
 package flipkart.mongo.replicator.core.model;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.mongodb.MongoURI;
-
 /**
  * Created by pradeep on 09/10/14.
  */
@@ -24,7 +20,6 @@ public class Node {
 
     public final String host;
     public final int port;
-    private Optional<Authorization> optionalAuthorization = Optional.absent();
     private NodeState state;
 
     public Node(String host, int port, NodeState state) {
@@ -37,39 +32,12 @@ public class Node {
         this(host, port, NodeState.UNKNOWN);
     }
 
-    public MongoURI getMongoURI() {
-        String hostURI = String.format("%s:%s", host, port);
-        String authorizationURI = null;
-        String authorizedDB = "";
-        if (optionalAuthorization.isPresent()) {
-            Authorization authorization = optionalAuthorization.get();
-            authorizationURI = String.format("%s:%s", authorization.username, authorization.password);
-            authorizedDB = authorization.getAuthorizedDB().or(authorizedDB);
-        }
-
-        String mongoURI;
-        if (!Strings.isNullOrEmpty(authorizationURI)) {
-            mongoURI = String.format("%s@%s/%s", authorizationURI, hostURI, authorizedDB);
-        } else {
-            mongoURI = hostURI;
-        }
-        return new MongoURI("mongodb://" + mongoURI);
-    }
-
     public NodeState getState() {
         return state;
     }
 
     public void setState(NodeState state) {
         this.state = state;
-    }
-
-    public void setAuthorization(Authorization optionalAuthorization) {
-        this.optionalAuthorization = Optional.fromNullable(optionalAuthorization);
-    }
-
-    public Optional<Authorization> getAuthorization() {
-        return optionalAuthorization;
     }
 
     @Override
@@ -90,7 +58,6 @@ public class Node {
     public int hashCode() {
         int result = host != null ? host.hashCode() : 0;
         result = 31 * result + port;
-        result = 31 * result + (state != null ? state.hashCode() : 0);
         return result;
     }
 
@@ -99,7 +66,6 @@ public class Node {
         return "Node{" +
                 "host='" + host + '\'' +
                 ", port=" + port +
-                ", optionalAuthorization=" + optionalAuthorization +
                 ", state=" + state +
                 '}';
     }

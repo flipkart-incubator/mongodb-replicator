@@ -16,7 +16,7 @@
         <flipkart.mongo.replicator.node.discovery.version>1.2-SNAPSHOT</flipkart.mongo.replicator.node.discovery.version>
         <flipkart.mongo.replicator.bootstrap.version>1.2-SNAPSHOT</flipkart.mongo.replicator.bootstrap.version>
         <flipkart.mongo.replicator.group.id>flipkart.cp.convert.cart</flipkart.mongo.replicator.group.id>
-        <mongo.driver.version>2.13.0-rc1</mongo.driver.version>
+        <mongo.driver.version>3.0.2</mongo.driver.version>
         <google.guava.version>15.0</google.guava.version>
         <java.source.version>1.6</java.source.version>
         <powermock.version>1.6.0</powermock.version>

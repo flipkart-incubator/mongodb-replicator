@@ -30,8 +30,7 @@ public class ReplicaSetReplicatorExample {
     public static void main(String args[]) {
 
         try {
-            ReplicaSetManager replicaSetExample = new ManagerBuilder()
-                    .addMongoNode(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
+            ReplicaSetManager replicaSetExample = new ManagerBuilder(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
                     .withCheckPoint(new CheckPointExampleHandler())
                     .withReplicationHandler(new ReplicationHandlerExample())
                     .withOplogFilter(new OplogExampleFilter())

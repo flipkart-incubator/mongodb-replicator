@@ -15,16 +15,11 @@ package flipkart.mongo.replicator.node.test;
 
 import flipkart.mongo.node.discovery.mock.model.MockClusterModel;
 import flipkart.mongo.node.discovery.mock.model.MockDBObjects;
-import flipkart.mongo.replicator.core.exceptions.MongoReplicaSetException;
 import flipkart.mongo.replicator.core.model.TaskContext;
 import flipkart.mongo.replicator.node.ReplicationTask;
 import flipkart.mongo.replicator.node.exceptions.ReplicationTaskException;
 import flipkart.mongo.replicator.node.test.mockbuilder.ReplicationTaskMockBuilder;
 import org.junit.Assert;
-
-import java.net.UnknownHostException;
-
-import static org.mockito.Mockito.when;
 
 /**
  * Created by kishan.gajjar on 12/12/14.
@@ -42,7 +37,6 @@ public class ReplicationTaskTest extends BaseReplicatorNodeTest {
     }
 
     public void testUnknownHostException() throws Exception {
-        when(replicaSetConfig.getMasterClientURI().connect()).thenThrow(UnknownHostException.class);
         try {
             this.runTest(MockDBObjects.BSONVariant.ACTUAL_TIME);
         } catch (Exception e) {
@@ -51,7 +45,6 @@ public class ReplicationTaskTest extends BaseReplicatorNodeTest {
     }
 
     public void testMongoReplicaSetException() throws Exception {
-        when(replicaSetConfig.getMasterClientURI().connect()).thenThrow(MongoReplicaSetException.class);
         try {
             this.runTest(MockDBObjects.BSONVariant.ACTUAL_TIME);
         } catch (Exception e) {

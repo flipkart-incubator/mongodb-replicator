@@ -22,7 +22,7 @@ import flipkart.mongo.replicator.core.exceptions.ReplicatorErrorCode;
 import flipkart.mongo.replicator.core.interfaces.ICheckPointHandler;
 import flipkart.mongo.replicator.core.interfaces.IReplicationHandler;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
-import org.bson.types.BSONTimestamp;
+import org.bson.BsonTimestamp;
 import org.junit.Assert;
 
 /**
@@ -58,21 +58,21 @@ public class TaskContextMockImpl {
         }
 
         @Override
-        public void checkPoint(String replicaSetId, BSONTimestamp timestamp) {
+        public void checkPoint(String replicaSetId, BsonTimestamp timestamp) {
             int time = timestamp.getTime();
             Assert.assertTrue("Asserting checkPoint", time == MockDBObjects.BSONVariant.AFTER.getTime() || time == MockDBObjects.BSONVariant.INIT.getTime());
         }
 
         @Override
-        public ImmutableMap<String, BSONTimestamp> getAllCheckPoints() {
+        public ImmutableMap<String, BsonTimestamp> getAllCheckPoints() {
             return null;
         }
 
         @Override
-        public BSONTimestamp getCheckPoint(String replicaSetId) {
+        public BsonTimestamp getCheckPoint(String replicaSetId) {
             if (bsonVariant == MockDBObjects.BSONVariant.INIT)
                 return null;
-            return new BSONTimestamp(MockDBObjects.BSONVariant.ACTUAL_TIME.getTime(), 1);
+            return new BsonTimestamp(MockDBObjects.BSONVariant.ACTUAL_TIME.getTime(), 1);
         }
     }
 
