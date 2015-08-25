@@ -13,7 +13,7 @@ Mongodb replicator is a java based library to stream changes from MongoDB databa
 - Provides check-point hooks which can be implemented based on the needed 
 
 ##### Limitations:
-- The change-list entries across shards in a sharded Chunk migration in a sharded cluster is not synchro
+- The change-list entries across shards in a sharded-cluster can have data ordering issues if chunk migration is turned on. In a sharded-cluster oplog streaming during chunk migration is not synchronized. However, this can be worked around by assuming partial ordering guarantees from this stream & have another level of ordering (using entity versions). 
 
 ##### Use-cases:
 - Can be used as streaming pipe for Hot-Cold store implementation where cold has to be eventually consistent & Hot is MongoDB
