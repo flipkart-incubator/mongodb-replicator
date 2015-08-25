@@ -76,7 +76,10 @@ public class NodeDiscovery {
             nodesInReplicaSet.add(replicaNodeWithState);
         }
 
-        return new ReplicaSetConfig(getShardName(replSetGetStatus), nodesInReplicaSet);
+        ReplicaSetConfig replicaSetConfig = new ReplicaSetConfig(getShardName(replSetGetStatus), nodesInReplicaSet);
+        logger.info("ReplicaSet found: " + replicaSetConfig);
+
+        return replicaSetConfig;
     }
 
     private String getShardName(CommandResult replSetGetStatus) {

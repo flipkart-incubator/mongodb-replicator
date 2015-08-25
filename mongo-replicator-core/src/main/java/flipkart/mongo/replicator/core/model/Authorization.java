@@ -35,4 +35,13 @@ public class Authorization {
     public void setAuthorizedDB(String authorizedDB) {
         this.authorizedDB = Optional.fromNullable(authorizedDB);
     }
+
+    @Override
+    public String toString() {
+        return "Authorization{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", authorizedDB=" + authorizedDB +
+                '}';
+    }
 }

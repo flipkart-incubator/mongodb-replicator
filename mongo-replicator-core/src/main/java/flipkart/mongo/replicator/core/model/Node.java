@@ -99,6 +99,7 @@ public class Node {
         return "Node{" +
                 "host='" + host + '\'' +
                 ", port=" + port +
+                ", optionalAuthorization=" + optionalAuthorization +
                 ", state=" + state +
                 '}';
     }
