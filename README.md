@@ -1,7 +1,7 @@
 # mongodb-replicator
 
 
-Mongodb replicator is a java based library to stream changes from MongoDB database and provides an application hook for the developers to plugin Replication Handlers for cutom transformation & specific destination related implementation. Sample implementation is [here](https://github.com/flipkart-incubator/mongodb-replicator/blob/master/example/src/main/java/flipkart/mongodb/replicator/example/ReplicationHandlerExample.java).
+Mongodb replicator is a java based library to stream changes from MongoDB database and provides an application hook for the developers to plugin Replication Handlers for custom transformation & specific destination related implementation. Sample implementation is [here](https://github.com/flipkart-incubator/mongodb-replicator/blob/master/example/src/main/java/flipkart/mongodb/replicator/example/ReplicationHandlerExample.java).
 
 ##### Features:
 
