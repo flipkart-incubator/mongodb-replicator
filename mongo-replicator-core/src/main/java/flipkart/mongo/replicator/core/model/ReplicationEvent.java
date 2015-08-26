@@ -24,6 +24,8 @@ public class ReplicationEvent {
     public final Operation operation;
     public final BsonTimestamp v;
     public final long h;
+    public final String databaseName;
+    public final String collectionName;
     public final String namespace;
     public final Document eventData;
     public final Optional<Document> objectId;
@@ -32,11 +34,13 @@ public class ReplicationEvent {
         this.operation = Operation.getOperationType(operation);
         this.v = v;
         this.h = h;
-        this.namespace = namespace;
         this.eventData = eventData;
         this.objectId = Optional.fromNullable(objectId);
+        this.namespace = namespace;
+        String[] namespaceSplit = namespace.split("\\.", 2);
+        this.databaseName = namespaceSplit[0];
+        this.collectionName = namespaceSplit[1];
     }
-
 
     @Override
     public String toString() {
@@ -45,6 +49,8 @@ public class ReplicationEvent {
                 ", v=" + v +
                 ", h=" + h +
                 ", namespace='" + namespace + '\'' +
+                ", databaseName='" + databaseName + '\'' +
+                ", collectionName='" + collectionName + '\'' +
                 ", eventData=" + eventData +
                 ", objectId=" + objectId +
                 '}';

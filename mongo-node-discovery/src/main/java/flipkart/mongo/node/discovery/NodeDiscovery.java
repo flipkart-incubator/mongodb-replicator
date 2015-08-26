@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import flipkart.mongo.node.discovery.exceptions.MongoDiscoveryException;
-import flipkart.mongo.replicator.core.model.Authorization;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.NodeState;
 import flipkart.mongo.replicator.core.model.ReplicaSetConfig;
@@ -48,7 +47,6 @@ public class NodeDiscovery {
     public ReplicaSetConfig discover() throws MongoDiscoveryException {
 
         List<Node> nodesInReplicaSet = Lists.newArrayList();
-        Optional<Authorization> authorizationOptional = Optional.absent();
         MongoClient client = MongoConnector.getMongoClient(mongoReplicaSet.getNodes());
 
         MongoDatabase dbConnection = client.getDatabase(DB_FOR_DISCOVERY);
@@ -57,7 +55,7 @@ public class NodeDiscovery {
         List<Document> memberDocuments = (List<Document>) replSetGetStatus.get("members");
 
         for (Document member : memberDocuments) {
-            Node replicaNodeWithState = getReplicaNodeWithState(member, mongoReplicaSet, authorizationOptional);
+            Node replicaNodeWithState = getReplicaNodeWithState(member, mongoReplicaSet);
             nodesInReplicaSet.add(replicaNodeWithState);
         }
 
@@ -76,7 +74,7 @@ public class NodeDiscovery {
         return shardName;
     }
 
-    private Node getReplicaNodeWithState(Document member, ReplicaSetConfig replicaSetConfig, Optional<Authorization> authorizationOptional) {
+    private Node getReplicaNodeWithState(Document member, ReplicaSetConfig replicaSetConfig) {
 
         String mongoUri = member.getString("name");
         String[] hostData = mongoUri.split(":");

@@ -74,13 +74,16 @@ public class ReplicationTask implements Runnable {
             } else {
                 iterable = collection.find(new Document("ts", new Document("$gt", lastCp)));
             }
-            cursor = iterable.sort(new Document("$natural", 1)).cursorType(CursorType.TailableAwait).iterator();
+            cursor = iterable.sort(new Document("$natural", 1))
+                    .noCursorTimeout(true)
+                    .cursorType(CursorType.TailableAwait)
+                    .iterator();
             try {
                 executeCursor(cursor);
                 logger.info("Waiting for next iteration");
                 Thread.sleep(WAIT_FOR_NEXT_ITERATION);
             } catch (Exception e) {
-                logger.error("Exception with cursor.", e);
+                logger.error("Exception with cursor. Recreating the cursor");
             } finally {
                 cursor.close();
             }
