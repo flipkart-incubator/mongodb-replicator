@@ -16,6 +16,7 @@ package flipkart.mongo.replicator.node;
 import com.google.common.collect.Lists;
 import com.mongodb.CursorType;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoCursorNotFoundException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -77,13 +78,16 @@ public class ReplicationTask implements Runnable {
             cursor = iterable.sort(new Document("$natural", 1))
                     .noCursorTimeout(true)
                     .cursorType(CursorType.TailableAwait)
+                    .batchSize(3000)
                     .iterator();
             try {
                 executeCursor(cursor);
-                logger.info("Waiting for next iteration");
                 Thread.sleep(WAIT_FOR_NEXT_ITERATION);
+            } catch (MongoCursorNotFoundException e) {
+                logger.info("Cursor has been closed. About to open a new cursor. ID: " + cursor.getServerCursor().getId());
             } catch (Exception e) {
-                logger.error("Exception with cursor. Recreating the cursor");
+                logger.error("Exception while replicating", e);
+                throw new RuntimeException(e);
             } finally {
                 cursor.close();
             }

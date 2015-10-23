@@ -22,6 +22,7 @@ public enum Operation {
     DELETE("d"),
     INITIATE("n"),
     COMMAND("c"),
+    REPLACE("r"),
     UNKNOWN("unknown");
 
     private final String operationStr;

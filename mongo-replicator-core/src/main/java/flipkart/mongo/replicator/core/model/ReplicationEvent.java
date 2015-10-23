@@ -31,7 +31,6 @@ public class ReplicationEvent {
     public final Optional<Document> objectId;
 
     public ReplicationEvent(String operation, BsonTimestamp v, long h, String namespace, Document eventData, Document objectId) {
-        this.operation = Operation.getOperationType(operation);
         this.v = v;
         this.h = h;
         this.eventData = eventData;
@@ -40,6 +39,18 @@ public class ReplicationEvent {
         String[] namespaceSplit = namespace.split("\\.", 2);
         this.databaseName = namespaceSplit[0];
         this.collectionName = namespaceSplit[1];
+        this.operation = getOperationType(operation, eventData);
+    }
+
+    private Operation getOperationType(String operation, Document eventData) {
+        Operation operationType = Operation.getOperationType(operation);
+        if (operationType == Operation.UPDATE && eventData.containsKey("_id")) {
+            /**
+             * if update operation payload has _id, then it should be replace operation from java driver
+             */
+            operationType = Operation.REPLACE;
+        }
+        return operationType;
     }
 
     @Override
