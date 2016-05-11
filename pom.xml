@@ -28,6 +28,7 @@
         <module>mongo-replicator-cluster</module>
         <module>mongo-node-discovery</module>
         <module>mongo-replicator-bootstrap</module>
+        <module>mongo-replicator-spout</module>
     </modules>
 
     <dependencies>
