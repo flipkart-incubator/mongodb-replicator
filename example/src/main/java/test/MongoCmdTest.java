@@ -14,6 +14,7 @@
 package test;
 
 import flipkart.mongo.replicator.core.model.Node;
+import flipkart.mongodb.replicator.example.TestBuilder;
 
 /**
  * Created by kishan.gajjar on 15/07/15.
@@ -23,7 +24,8 @@ public class MongoCmdTest {
 
     public static void main(String[] args) {
 
-        Node node = new Node("cart-mongo3.nm.flipkart.com", 26102);
+        TestBuilder testBuilder = new TestBuilder();
+        Node node = testBuilder.getMongosNodeFromArgs(args);
 //        MongoClient client = MongoConnector.getMongoClient(node.getMongoURI());
 //
 //        MongoDatabase database = client.getDatabase(DB_FOR_DISCOVERY);

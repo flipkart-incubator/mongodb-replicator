@@ -21,6 +21,7 @@ import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongodb.replicator.example.CheckPointExampleHandler;
 import flipkart.mongodb.replicator.example.OplogExampleFilter;
 import flipkart.mongodb.replicator.example.ReplicationHandlerExample;
+import flipkart.mongodb.replicator.example.TestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +33,10 @@ public class ClusterReplicatorExample {
 
     public static void main(String args[]) {
 
+        TestBuilder testBuilder = new TestBuilder();
+        Node node = testBuilder.getMongosNodeFromArgs(args);
         try {
-            ClusterManager clusterManager = new ManagerBuilder(new Node("w3-cart-svc10.nm.flipkart.com", 27200))
+            ClusterManager clusterManager = new ManagerBuilder(node)
                     .withReplicationHandler(new ReplicationHandlerExample())
                     .withCheckPoint(new CheckPointExampleHandler())
                     .withOplogFilter(new OplogExampleFilter())

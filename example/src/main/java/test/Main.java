@@ -24,6 +24,7 @@ import flipkart.mongo.replicator.core.model.MongoV;
 import flipkart.mongo.replicator.core.model.Node;
 import flipkart.mongo.replicator.core.model.Operation;
 import flipkart.mongo.replicator.core.model.ReplicationEvent;
+import flipkart.mongodb.replicator.example.TestBuilder;
 import org.bson.BsonTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +45,11 @@ public class Main {
 
     public static void main(String args[]) {
 
+        TestBuilder testBuilder = new TestBuilder();
+        Node node = testBuilder.getMongosNodeFromArgs(args);
         try {
 
-            ClusterManager clusterManager = new ManagerBuilder(new Node("10.33.41.177", 27200))
+            ClusterManager clusterManager = new ManagerBuilder(node)
                     .withReplicationHandler(new Test())
                     .withCheckPoint(new InMemCheckPointHandler())
                     .withOplogFilter(new OplogFilter())
